@@ -37,47 +37,82 @@ Welcome to **Data Hustler**! This project is dedicated to analyzing and forecast
 
 ## 🛠️ Development Workflow
 
-- **Before Committing Changes:** ✅
+### 1. 🌿 Create a New Branch
 
-  Run pre-commit hooks on all files:
+To maintain a clean Git history, avoid pushing directly to the `main` branch. Instead, create a new branch using the naming convention:
 
-  ```bash
-  poetry run pre-commit run --all-files
-  ```
+```
+tgnick+timestamp
+```
 
-- **Save and Push Changes:** 🚀
+- **`tgnick`**: Your Telegram username.
+- **`timestamp`**: Current Unix epoch time (can be obtained from [Epoch Converter](https://www.epochconverter.com)).
 
-  ```bash
-  git add .
-  git commit -m "Your descriptive commit message here"
-  ```
-  or
-  ```bash
-  git commit -m "Your descriptive commit message here" --no-verify
-  ```
-  *(Use `--no-verify` if pre-commit hooks are blocking your commit and you need to bypass them.)*
-
-  ```bash
-  git push origin main
-  dvc push
-  ```
-
-## 🌿 Branch Naming Convention
-
-To maintain a clean Git history, avoid pushing directly to the `main` branch. Instead:
-
-- **Create a new branch** for your work using the naming convention:
-  ```
-  tgnick+timestamp
-  ```
-  - `tgnick`: Your Telegram username
-  - `timestamp`: Current Unix epoch time (can be obtained from [Epoch Converter](https://www.epochconverter.com))
-
-*Example:*  
-If your username is `fdww` and the current epoch time is `1732447944`, your branch name should be:
+#### Example:
+If your Telegram username is `fdww` and the current epoch time is `1732447944`, your branch name should be:
 ```
 fdww1732447944
 ```
+
+### 2. ✅ Run Pre-commit Hooks Before Committing
+
+Ensure your code passes pre-commit checks:
+
+```bash
+poetry run pre-commit run --all-files
+```
+
+### 3. 🚀 Save and Push Changes
+
+1. Stage your changes:
+   ```bash
+   git add .
+   ```
+
+2. Commit your changes:
+   ```bash
+   git commit -m "commit message"
+   ```
+   If you encounter issues with pre-commit hooks, you can bypass them temporarily:
+   ```bash
+   git commit -m "commit message" --no-verify
+
+   ```
+
+3. Push your changes to your branch:
+   ```bash
+   git push origin {YOUR_BRANCH_NAME_IN_FORMAT:tgnicktimestamp}
+   ```
+
+4. Push updated data to DVC storage:
+   ```bash
+   dvc push
+   ```
+
+### 4. 🗑️ Deleting Files Tracked by Git and DVC
+
+If you delete a file (e.g., a zip archive) that is tracked by both Git and DVC:
+
+1. **Delete the File Locally:**
+   ```bash
+   rm path/to/your/file.zip
+   ```
+
+2. **Stage the Changes in Git:**
+   ```bash
+   git add .
+   ```
+
+3. **Commit the Changes:**
+   ```bash
+   git commit -m "Remove file.zip from project"
+   ```
+
+5. **Push Changes to Remote Repositories:**
+   ```bash
+   git push origin your-branch-name
+   dvc push
+   ```
 
 ## 📂 Project Structure
 
