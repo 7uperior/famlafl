@@ -1,0 +1,3 @@
+[submodule "mlfinlab"]
+	path = mlfinlab
+	url = https://github.com/7uperior/mlfinlab.git
