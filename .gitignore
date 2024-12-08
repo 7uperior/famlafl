@@ -50,3 +50,4 @@ ruff_cache/
 
 # Other
 .env
+catboost_info/
