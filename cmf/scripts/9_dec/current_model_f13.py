@@ -66,6 +66,23 @@ def calculate_atr(data: pd.DataFrame, period: int = 14) -> pd.Series:
 
     return atr
 
+def calculate_open_interest(data: pd.DataFrame) -> pd.Series:
+    open_interest = data['bids[0].amount'] + data['asks[0].amount']
+    return open_interest
+
+def calculate_volume(trades_df: pd.DataFrame, window: Union[str, int]) -> pd.Series:
+    volume = trades_df['ask_amount'].rolling(window=window, min_periods=1).sum() + trades_df['bid_amount'].rolling(window=window, min_periods=1).sum()
+    return volume
+
+#12
+def calculate_large_density(lobs: pd.DataFrame, volume_series: pd.Series) -> pd.Series:
+
+    density = lobs['bids[0].amount'] + lobs['asks[0].amount']
+    density, volume = density.align(volume_series, join='outer', fill_value=0)
+    large_density = density[density > volume]
+    return large_density
+
+#13  ATR for volume using volume series
 
 def calc_features(
     lobs: pd.DataFrame,
@@ -111,6 +128,24 @@ def calc_features(
     lobs["close"] = lobs["mid_price"]
     atr_series = calculate_atr(lobs, period=14).asof(target_data.index)
 
+    # Calculate Open Interest
+    open_interest_series = calculate_open_interest(lobs).asof(target_data.index)
+
+
+    # Calculate Volume
+    volume_series = calculate_volume(solusdt_agg_trades, window='5min').asof(target_data.index)
+
+    # Calculate Large Density
+    large_density_series = calculate_large_density(lobs, volume_series).asof(target_data.index)
+
+    # Calculate ATR for volume
+    #13
+    lobs["high_volume"] = lobs[["asks[0].amount", "bids[0].amount"]].max(axis=1)
+    lobs["low_volume"] = lobs[["asks[0].amount", "bids[0].amount"]].min(axis=1)
+    lobs["close_volume"] = (lobs["asks[0].amount"] + lobs["bids[0].amount"]) / 2
+    atr_volume_series = calculate_atr(lobs, period=14).asof(target_data.index)
+
+    
     return pd.concat(
         [
             target_data.side,
@@ -121,7 +156,11 @@ def calc_features(
             main_btcusdt_dev.rename("main_btcusdt_dev"),
             imbalance_series.rename("imbalance"),
             sol_mid_price.rename("sol_mid_price"),
-            atr_series.rename("atr")
+            atr_series.rename("atr"),
+            open_interest_series.rename("open_interest"),
+            volume_series.rename("volume"),
+            large_density_series.rename("large_density"),
+            atr_volume_series.rename("atr_volume")
         ],
         axis=1,
     )
@@ -155,7 +194,7 @@ X = calc_features(orderbook_solusdt, agg_trades, orderbook_embedding, target_dat
 y = target_solusdt_preprocessed["target"]
 weights = target_solusdt_preprocessed["weight"]
 # TimeSeriesSplit configuration
-tscv = TimeSeriesSplit(n_splits=10, gap = 20)
+tscv = TimeSeriesSplit(n_splits=5, gap = 10)
 
 params_research = {
     "use_best_model": True,
@@ -237,5 +276,3 @@ model_name = f"model_count{features_count}_loglloss{final_log_loss}_{timestamp}.
 path_to_model_folder = "./cmf/models/"
 model.save_model(f'{path_to_model_folder}{model_name}')
 print(f"Model saved as: {model_name}")
-
-#0.679794-0.6788005280989209

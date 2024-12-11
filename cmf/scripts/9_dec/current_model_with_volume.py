@@ -66,31 +66,11 @@ def calculate_atr(data: pd.DataFrame, period: int = 14) -> pd.Series:
 
     return atr
 
-def calculate_open_interest(data: pd.DataFrame) -> pd.Series:
-    open_interest = data['bids[0].amount'] + data['asks[0].amount']
-    return open_interest
-
 def calculate_volume(trades_df: pd.DataFrame, window: Union[str, int]) -> pd.Series:
     volume = trades_df['ask_amount'].rolling(window=window, min_periods=1).sum() + trades_df['bid_amount'].rolling(window=window, min_periods=1).sum()
     return volume
 
-def calculate_large_density(lobs: pd.DataFrame, volume_series: pd.Series) -> pd.Series:
 
-    density = lobs['bids[0].amount'] + lobs['asks[0].amount']
-    density, volume = density.align(volume_series, join='outer', fill_value=0)
-    large_density = density[density > volume]
-    return large_density
-
-def calculate_atr_volume(data: pd.DataFrame, period: int = 14) -> pd.Series:
-    """Calculate ATR-like indicator but for volume/amount instead of prices."""
-    high_low = data['high_volume'] - data['low_volume']
-    high_close = np.abs(data['high_volume'] - data['close_volume'].shift())
-    low_close = np.abs(data['low_volume'] - data['close_volume'].shift())
-
-    true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
-    atr_volume = true_range.rolling(window=period, min_periods=1).mean()
-
-    return atr_volume
 
 def calc_features(
     lobs: pd.DataFrame,
@@ -136,22 +116,8 @@ def calc_features(
     lobs["close"] = lobs["mid_price"]
     atr_series = calculate_atr(lobs, period=14).asof(target_data.index)
 
-    # Calculate Open Interest
-    open_interest_series = calculate_open_interest(lobs).asof(target_data.index)
-
     # Calculate Volume
     volume_series = calculate_volume(solusdt_agg_trades, window='5min').asof(target_data.index)
-
-    # Calculate Large Density
-    large_density_series = calculate_large_density(lobs, volume_series).asof(target_data.index)
-
-    # Calculate ATR for volume
-    lobs["high_volume"] = lobs[["asks[0].amount", "bids[0].amount"]].max(axis=1)
-    lobs["low_volume"] = lobs[["asks[0].amount", "bids[0].amount"]].min(axis=1)
-    lobs["close_volume"] = (lobs["asks[0].amount"] + lobs["bids[0].amount"]) / 2
-    atr_volume_series = calculate_atr_volume(lobs, period=14).asof(target_data.index)
-
-
 
     return pd.concat(
         [
@@ -164,11 +130,7 @@ def calc_features(
             imbalance_series.rename("imbalance"),
             sol_mid_price.rename("sol_mid_price"),
             atr_series.rename("atr"),
-            open_interest_series.rename("open_interest"),
-            volume_series.rename("volume_qrsprivate"),
-            large_density_series.rename("large_density"),
-            atr_volume_series.rename("atr_volume"),
-
+            volume_series.rename("volume")
         ],
         axis=1,
     )
@@ -279,9 +241,10 @@ features_count = X.shape[1]
 gmt_plus_3 = timezone(timedelta(hours=3))
 now_gmt_plus_3 = datetime.now(gmt_plus_3)
 timestamp = now_gmt_plus_3.strftime("%Y-%b-%d_%H-%M")
-model_name = f"model_count{features_count}_loglloss{final_log_loss}_{timestamp}.cbm"
+model_name = f"model_with_volume_count{features_count}_loglloss{final_log_loss}_{timestamp}.cbm"
 
 path_to_model_folder = "./cmf/models/"
 model.save_model(f'{path_to_model_folder}{model_name}')
 print(f"Model saved as: {model_name}")
 
+#0.679794-0.6788005280989209

@@ -1,15 +1,15 @@
-import os
+import pandas as pd
+import numpy as np
+from catboost import CatBoostClassifier
+from sklearn.model_selection import TimeSeriesSplit
+from sklearn.metrics import log_loss
+from typing import Union, Optional, List, Dict
 from collections import Counter
 from datetime import datetime
-from typing import Dict, Union
-
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import shap
-from catboost import CatBoostClassifier
-from sklearn.metrics import log_loss
-from sklearn.model_selection import TimeSeriesSplit
+import multiprocessing as mp
+import os
 
 # Constants for time conversions
 NANOSECOND = 1
@@ -41,7 +41,276 @@ CATBOOST_PARAMS = {
     "verbose": False
 }
 
-# First Generation Features
+# Inter-bar feature generator which uses trades data and bars index to calculate inter-bar features
+
+
+
+
+#Entropy calculation module (Shannon, Lempel-Ziv, Plug-In, Konto)
+def get_shannon_entropy(message: str) -> float:
+    """
+    Advances in Financial Machine Learning, page 263-264.
+
+    Get Shannon entropy from message
+
+    :param message: (str) Encoded message
+    :return: (float) Shannon entropy
+    """
+    exr = {}
+    entropy = 0
+    for each in message:
+        try:
+            exr[each] += 1
+        except KeyError:
+            exr[each] = 1
+    textlen = len(message)
+    for value in exr.values():
+        freq = 1.0 * value / textlen
+        entropy += freq * math.log(freq) / math.log(2)
+    entropy *= -1
+    return entropy
+
+
+def get_lempel_ziv_entropy(message: str) -> float:
+    """
+    Advances in Financial Machine Learning, Snippet 18.2, page 266.
+
+    Get Lempel-Ziv entropy estimate
+
+    :param message: (str) Encoded message
+    :return: (float) Lempel-Ziv entropy
+    """
+    i, lib = 1, [message[0]]
+    while i < len(message):
+        for j in range(i, len(message)):
+            message_ = message[i:j + 1]
+            if message_ not in lib:
+                lib.append(message_)
+                break
+        i = j + 1
+    return len(lib) / len(message)
+
+
+def _prob_mass_function(message: str, word_length: int) -> dict:
+    """
+    Advances in Financial Machine Learning, Snippet 18.1, page 266.
+
+    Compute probability mass function for a one-dim discete rv
+
+    :param message: (str or array) Encoded message
+    :param word_length: (int) Approximate word length
+    :return: (dict) Dict of pmf for each word from message
+    """
+    lib = {}
+    if not isinstance(message, str):
+        message = ''.join(map(str, message))
+    for i in range(word_length, len(message)):
+        message_ = message[i - word_length:i]
+        if message_ not in lib:
+            lib[message_] = [i - word_length]
+        else:
+            lib[message_] = lib[message_] + [i - word_length]
+    pmf = float(len(message) - word_length)
+    pmf = {i: len(lib[i]) / pmf for i in lib}
+    return pmf
+
+
+def get_plug_in_entropy(message: str, word_length: int = None) -> float:
+    """
+    Advances in Financial Machine Learning, Snippet 18.1, page 265.
+
+    Get Plug-in entropy estimator
+
+    :param message: (str or array) Encoded message
+    :param word_length: (int) Approximate word length
+    :return: (float) Plug-in entropy
+    """
+    if word_length is None:
+        word_length = 1
+    pmf = _prob_mass_function(message, word_length)
+    out = -sum([pmf[i] * np.log2(pmf[i]) for i in pmf]) / word_length
+    return out
+
+
+@njit()
+def _match_length(message: str, start_index: int, window: int) -> Union[int, str]:    # pragma: no cover
+    """
+    Advances in Financial Machine Learning, Snippet 18.3, page 267.
+
+    Function That Computes the Length of the Longest Match
+
+    :param message: (str or array) Encoded message
+    :param start_index: (int) Start index for search
+    :param window: (int) Window length
+    :return: (int, str) Match length and matched string
+    """
+    # Maximum matched length+1, with overlap.
+    sub_str = ''
+    for length in range(window):
+        msg1 = message[start_index: start_index + length + 1]
+        for j in range(start_index - window, start_index):
+            msg0 = message[j: j + length + 1]
+            if len(msg1) != len(msg0):
+                continue
+            if msg1 == msg0:
+                sub_str = msg1
+                break  # Search for higher l.
+    return len(sub_str) + 1, sub_str  # Matched length + 1
+
+
+def get_konto_entropy(message: str, window: int = 0) -> float:
+    """
+    Advances in Financial Machine Learning, Snippet 18.4, page 268.
+
+    Implementations of Algorithms Discussed in Gao et al.[2008]
+
+    Get Kontoyiannis entropy
+
+    :param message: (str or array) Encoded message
+    :param window: (int) Expanding window length, can be negative
+    :return: (float) Kontoyiannis entropy
+    """
+    out = {
+        'h': 0,
+        'r': 0,
+        'num': 0,
+        'sum': 0,
+        'sub_str': []
+    }
+    if window <= 0:
+        points = range(1, len(message) // 2 + 1)
+    else:
+        window = min(window, len(message) // 2)
+        points = range(window, len(message) - window + 1)
+    for i in points:
+        if window <= 0:
+            length, msg_ = _match_length(message, i, i)
+            out['sum'] += np.log2(i + 1) / length  # To avoid Doeblin condition
+        else:
+            length, msg_ = _match_length(message, i, window)
+            out['sum'] += np.log2(window + 1) / length  # To avoid Doeblin condition
+        out['sub_str'].append(msg_)
+        out['num'] += 1
+    try:
+        out['h'] = out['sum'] / out['num']
+    except ZeroDivisionError:
+        out['h'] = 0
+    out['r'] = 1 - out['h'] / (np.log2(len(message)) if np.log2(len(message)) > 0 else 1)  # Redundancy, 0<=r<=1
+    return out['h']
+
+#Various functions for message encoding (quantile)
+def encode_tick_rule_array(tick_rule_array: list) -> str:
+    """
+    Encode array of tick signs (-1, 1, 0)
+
+    :param tick_rule_array: (list) Tick rules
+    :return: (str) Encoded message
+    """
+    message = ''
+    for element in tick_rule_array:
+        if element == 1:
+            message += 'a'
+        elif element == -1:
+            message += 'b'
+        elif element == 0:
+            message += 'c'
+        else:
+            raise ValueError('Unknown value for tick rule: {}'.format(element))
+    return message
+
+
+def _get_ascii_table() -> list:
+    """
+    Get all ASCII symbols
+
+    :return: (list) ASCII symbols
+    """
+    # ASCII table consists of 256 characters
+    table = []
+    for i in range(256):
+        table.append(chr(i))
+    return table
+
+
+def quantile_mapping(array: list, num_letters: int = 26) -> dict:
+    """
+    Generate dictionary of quantile-letters based on values from array and dictionary length (num_letters).
+
+    :param array: (list) Values to split on quantiles
+    :param num_letters: (int) Number of letters(quantiles) to encode
+    :return: (dict) Dict of quantile-symbol
+    """
+    encoding_dict = {}
+    ascii_table = _get_ascii_table()
+    alphabet = ascii_table[:num_letters]
+    for quant, letter in zip(np.linspace(0.01, 1, len(alphabet)), alphabet):
+        encoding_dict[np.quantile(array, quant)] = letter
+    return encoding_dict
+
+
+def sigma_mapping(array: list, step: float = 0.01) -> dict:
+    """
+    Generate dictionary of sigma encoded letters based on values from array and discretization step.
+
+    :param array: (list) Values to split on quantiles
+    :param step: (float) Discretization step (sigma)
+    :return: (dict) Dict of value-symbol
+    """
+    i = 0
+    ascii_table = _get_ascii_table()
+    encoding_dict = {}
+    encoding_steps = np.arange(min(array), max(array), step)
+    for element in encoding_steps:
+        try:
+            encoding_dict[element] = ascii_table[i]
+        except IndexError:
+            raise ValueError(
+                'Length of dictionary ceil((max(arr) - min(arr)) / step = {} is more than ASCII table lenght)'.format(
+                    len(encoding_steps)))
+        i += 1
+    return encoding_dict
+
+
+def _find_nearest(array: list, value: float) -> float:
+    """
+    Find the nearest element from array to value.
+
+    :param array: (list) Values
+    :param value: (float) Value for which the nearest element needs to be found
+    :return: (float) The nearest to the value element in array
+    """
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
+
+
+def _get_letter_from_encoding(value: float, encoding_dict: dict) -> str:
+    """
+    Get letter for float/int value from encoding dict.
+
+    :param value: (float/int) Value to use
+    :param encoding_dict: (dict) Used dictionary
+    :return: (str) Letter from encoding dict
+    """
+    return encoding_dict[_find_nearest(list(encoding_dict.keys()), value)]
+
+
+def encode_array(array: list, encoding_dict: dict) -> str:
+    """
+    Encode array with strings using encoding dict, in case of multiple occurrences of the minimum values,
+    the indices corresponding to the first occurrence are returned
+
+    :param array: (list) Values to encode
+    :param encoding_dict: (dict) Dict of quantile-symbol
+    :return: (str) Encoded message
+    """
+    message = ''
+    for element in array:
+        message += _get_letter_from_encoding(element, encoding_dict)
+    return message
+
+
+
 def get_roll_measure(prices: pd.Series, window: int = 20) -> pd.Series:
     """Calculate Roll's measure of effective spread."""
     price_diff = prices.diff()
@@ -131,7 +400,7 @@ def quantile_mapping(array: np.ndarray, num_letters: int = 10) -> Dict:
     quantiles = np.linspace(0, 100, num_letters + 1)
     bins = np.percentile(array, quantiles)
     letters = [chr(i) for i in range(65, 65 + num_letters)]
-
+    
     mapping = {}
     for i in range(len(array)):
         val = array[i]
@@ -145,7 +414,7 @@ def sigma_mapping(array: np.ndarray, step_size: float = 0.01) -> Dict:
     """Create sigma-based mapping for encoding."""
     mean = np.mean(array)
     std = np.std(array)
-
+    
     mapping = {}
     for val in array:
         sigma_dist = (val - mean) / std
@@ -174,7 +443,7 @@ def get_lempel_ziv_entropy(message: str) -> float:
     i, dictionary_size = 0, len(set(message))
     dictionary = {}
     w = ''
-
+    
     while i < len(message):
         w += message[i]
         if w not in dictionary:
@@ -182,14 +451,14 @@ def get_lempel_ziv_entropy(message: str) -> float:
             dictionary_size += 1
             w = ''
         i += 1
-
+    
     return len(dictionary) / len(message)
 
 def get_plug_in_entropy(message: str, word_length: int = 1) -> float:
     """Calculate plug-in entropy."""
     if word_length > len(message):
         return 0
-
+    
     words = [message[i:i+word_length] for i in range(len(message)-word_length+1)]
     counter = Counter(words)
     probs = [count / len(words) for count in counter.values()]
@@ -199,14 +468,14 @@ def get_konto_entropy(message: str, window: int = 20) -> float:
     """Calculate Kontoyiannis entropy."""
     n = len(message)
     sum_lambda = 0
-
+    
     for i in range(n):
         lambda_i = 1
         for j in range(min(i, window)):
             if message[i-j:i+1] in message[:i]:
                 lambda_i += 1
         sum_lambda += np.log2(lambda_i)
-
+    
     return sum_lambda / n
 
 if __name__ == "__main__":
@@ -253,10 +522,10 @@ if __name__ == "__main__":
         high_low = data['high_volume'] - data['low_volume']
         high_close = np.abs(data['high_volume'] - data['close_volume'].shift())
         low_close = np.abs(data['low_volume'] - data['close_volume'].shift())
-
+        
         true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
         atr_volume = true_range.rolling(window=period, min_periods=1).mean()
-
+        
         return atr_volume
 
     def calc_features(
@@ -269,7 +538,7 @@ if __name__ == "__main__":
         # Validate input data
         if any(df.empty for df in [lobs, agg_trades, lobs_embedding, target_data]):
             raise ValueError("One or more input DataFrames are empty")
-
+            
         # Ensure all DataFrames have datetime index
         for df in [lobs, agg_trades, lobs_embedding, target_data]:
             if not isinstance(df.index, pd.DatetimeIndex):
@@ -277,8 +546,8 @@ if __name__ == "__main__":
 
         # Add time-based features
         timestamp = pd.to_datetime(target_data.index)
-        day_of_week = pd.Series(timestamp.dayofweek, index=timestamp)
-        hour_of_day = pd.Series(timestamp.hour, index=timestamp)
+        day_of_week = pd.Series(timestamp.dayofweek, index=timestamp)  
+        hour_of_day = pd.Series(timestamp.hour, index=timestamp)      
 
         # Price features
         lobs["mid_price"] = (lobs["asks[0].price"].ffill() + lobs["bids[0].price"].ffill()) / 2
@@ -369,14 +638,14 @@ if __name__ == "__main__":
         try:
             valid_volume = volume_series[~np.isnan(volume_series) & ~np.isinf(volume_series)]
             valid_returns = log_returns[~np.isnan(log_returns) & ~np.isinf(log_returns)]
-
+            
             if len(valid_volume) > 0 and len(valid_returns) > 0:
                 volume_mapping = quantile_mapping(valid_volume.values, num_letters=20)
                 returns_mapping = quantile_mapping(valid_returns.values, num_letters=20)
-
+                
                 volume_message = encode_array(volume_series.fillna(0).values, volume_mapping)
                 price_message = encode_array(log_returns.fillna(0).values, returns_mapping)
-
+                
                 volume_entropy_val = get_shannon_entropy(volume_message)
                 price_entropy_lz_val = get_lempel_ziv_entropy(price_message)
                 price_entropy_konto_val = get_konto_entropy(price_message)
@@ -540,7 +809,7 @@ if __name__ == "__main__":
         X_reduced = X.drop(columns=[feature])
         X_train_reduced = X_reduced.iloc[:train_size]
         X_test_reduced = X_reduced.iloc[train_size:]
-
+        
         model_reduced = CatBoostClassifier(**params, verbose=0)
         model_reduced.fit(
             X_train_reduced,
@@ -549,7 +818,7 @@ if __name__ == "__main__":
             eval_set=(X_test_reduced, y_test_simple),
             verbose=0
         )
-
+        
         y_pred_proba = model_reduced.predict_proba(X_test_reduced)[:, 1]
         score_without_feature = log_loss(y_test_simple, y_pred_proba, sample_weight=weights_test_simple)
         impact = score_without_feature - base_score
