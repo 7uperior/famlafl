@@ -145,7 +145,7 @@ def calc_features(
     lobs["close_volume"] = (lobs["asks[0].amount"] + lobs["bids[0].amount"]) / 2
     atr_volume_series = calculate_atr(lobs, period=14).asof(target_data.index)
 
-    
+
     return pd.concat(
         [
             target_data.side,

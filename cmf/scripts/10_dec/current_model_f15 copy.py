@@ -1,14 +1,13 @@
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Union
-import polars as pl
 
 import numpy as np
 import pandas as pd
+import polars as pl
 from catboost import CatBoostClassifier
 from sklearn.metrics import log_loss
 from sklearn.model_selection import TimeSeriesSplit
-
-import time
 
 # Constants for time conversions
 NANOSECOND = 1
@@ -25,17 +24,17 @@ def trades_balance(trades_df: pd.DataFrame, window: Union[str, int]) -> pd.Serie
 def calc_imbalance(lobs: pd.DataFrame, lvl_count: int = 20) -> pd.Series:
     """
     Calculate order book imbalance across multiple levels for orderbook_solusdt
-    
+
     Parameters:
     - lobs: DataFrame orderbook_solusdt(lobs) containing order book data (with asks[0-19] and bids[0-19])
     - lvl_count: Number of levels to include in imbalance calculation (default: 20 for all levels)
-    
+
     Returns:
     - Series containing the imbalance calculation
     """
     if lvl_count > 20:
         lvl_count = 20  # Safeguard against requesting more levels than available
-        
+
     bid_amount = sum(lobs[f"bids[{i}].amount"] for i in range(lvl_count))
     ask_amount = sum(lobs[f"asks[{i}].amount"] for i in range(lvl_count))
     return (bid_amount - ask_amount) / (bid_amount + ask_amount + 1e-8)
@@ -164,7 +163,7 @@ def calc_features(
     lobs["close_volume"] = (lobs["asks[0].amount"] + lobs["bids[0].amount"]) / 2
     atr_volume_series = calculate_atr(lobs, period=14).asof(target_data.index)
 
-    
+
     return pd.concat(
         [
             target_data.side,
@@ -287,7 +286,7 @@ print("\n=== Starting Model Training ===")
 training_start = time.time()
 
 for fold, (train_index, test_index) in enumerate(tscv.split(X)):
-    
+
     X_train, X_test = X.iloc[train_index], X.iloc[test_index]
     y_train, y_test = y.iloc[train_index], y.iloc[test_index]
     weights_train, weights_test = weights.iloc[train_index], weights.iloc[test_index]

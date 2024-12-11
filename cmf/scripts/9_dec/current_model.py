@@ -139,7 +139,7 @@ def calc_features(
     large_density_series = calculate_large_density(lobs, volume_series).asof(target_data.index)
 
 
-    
+
     return pd.concat(
         [
             target_data.side,

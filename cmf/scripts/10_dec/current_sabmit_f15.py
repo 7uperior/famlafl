@@ -19,17 +19,17 @@ def trades_balance(trades_df: pd.DataFrame, window: Union[str, int]) -> pd.Serie
 def calc_imbalance(lobs: pd.DataFrame, lvl_count: int = 20) -> pd.Series:
     """
     Calculate order book imbalance across multiple levels for orderbook_solusdt
-    
+
     Parameters:
     - lobs: DataFrame orderbook_solusdt(lobs) containing order book data (with asks[0-19] and bids[0-19])
     - lvl_count: Number of levels to include in imbalance calculation (default: 20 for all levels)
-    
+
     Returns:
     - Series containing the imbalance calculation
     """
     if lvl_count > 20:
         lvl_count = 20  # Safeguard against requesting more levels than available
-        
+
     bid_amount = sum(lobs[f"bids[{i}].amount"] for i in range(lvl_count))
     ask_amount = sum(lobs[f"asks[{i}].amount"] for i in range(lvl_count))
     return (bid_amount - ask_amount) / (bid_amount + ask_amount + 1e-8)

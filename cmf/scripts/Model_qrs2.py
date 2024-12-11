@@ -1,15 +1,15 @@
-import pandas as pd
-import numpy as np
-from catboost import CatBoostClassifier
-from sklearn.model_selection import TimeSeriesSplit
-from sklearn.metrics import log_loss
-from typing import Union, Optional, List, Dict
+import os
 from collections import Counter
 from datetime import datetime
+from typing import Dict, Union
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import shap
-import multiprocessing as mp
-import os
+from catboost import CatBoostClassifier
+from sklearn.metrics import log_loss
+from sklearn.model_selection import TimeSeriesSplit
 
 # Constants for time conversions
 NANOSECOND = 1
@@ -400,7 +400,7 @@ def quantile_mapping(array: np.ndarray, num_letters: int = 10) -> Dict:
     quantiles = np.linspace(0, 100, num_letters + 1)
     bins = np.percentile(array, quantiles)
     letters = [chr(i) for i in range(65, 65 + num_letters)]
-    
+
     mapping = {}
     for i in range(len(array)):
         val = array[i]
@@ -414,7 +414,7 @@ def sigma_mapping(array: np.ndarray, step_size: float = 0.01) -> Dict:
     """Create sigma-based mapping for encoding."""
     mean = np.mean(array)
     std = np.std(array)
-    
+
     mapping = {}
     for val in array:
         sigma_dist = (val - mean) / std
@@ -443,7 +443,7 @@ def get_lempel_ziv_entropy(message: str) -> float:
     i, dictionary_size = 0, len(set(message))
     dictionary = {}
     w = ''
-    
+
     while i < len(message):
         w += message[i]
         if w not in dictionary:
@@ -451,14 +451,14 @@ def get_lempel_ziv_entropy(message: str) -> float:
             dictionary_size += 1
             w = ''
         i += 1
-    
+
     return len(dictionary) / len(message)
 
 def get_plug_in_entropy(message: str, word_length: int = 1) -> float:
     """Calculate plug-in entropy."""
     if word_length > len(message):
         return 0
-    
+
     words = [message[i:i+word_length] for i in range(len(message)-word_length+1)]
     counter = Counter(words)
     probs = [count / len(words) for count in counter.values()]
@@ -468,14 +468,14 @@ def get_konto_entropy(message: str, window: int = 20) -> float:
     """Calculate Kontoyiannis entropy."""
     n = len(message)
     sum_lambda = 0
-    
+
     for i in range(n):
         lambda_i = 1
         for j in range(min(i, window)):
             if message[i-j:i+1] in message[:i]:
                 lambda_i += 1
         sum_lambda += np.log2(lambda_i)
-    
+
     return sum_lambda / n
 
 if __name__ == "__main__":
@@ -522,10 +522,10 @@ if __name__ == "__main__":
         high_low = data['high_volume'] - data['low_volume']
         high_close = np.abs(data['high_volume'] - data['close_volume'].shift())
         low_close = np.abs(data['low_volume'] - data['close_volume'].shift())
-        
+
         true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
         atr_volume = true_range.rolling(window=period, min_periods=1).mean()
-        
+
         return atr_volume
 
     def calc_features(
@@ -538,7 +538,7 @@ if __name__ == "__main__":
         # Validate input data
         if any(df.empty for df in [lobs, agg_trades, lobs_embedding, target_data]):
             raise ValueError("One or more input DataFrames are empty")
-            
+
         # Ensure all DataFrames have datetime index
         for df in [lobs, agg_trades, lobs_embedding, target_data]:
             if not isinstance(df.index, pd.DatetimeIndex):
@@ -546,8 +546,8 @@ if __name__ == "__main__":
 
         # Add time-based features
         timestamp = pd.to_datetime(target_data.index)
-        day_of_week = pd.Series(timestamp.dayofweek, index=timestamp)  
-        hour_of_day = pd.Series(timestamp.hour, index=timestamp)      
+        day_of_week = pd.Series(timestamp.dayofweek, index=timestamp)
+        hour_of_day = pd.Series(timestamp.hour, index=timestamp)
 
         # Price features
         lobs["mid_price"] = (lobs["asks[0].price"].ffill() + lobs["bids[0].price"].ffill()) / 2
@@ -638,14 +638,14 @@ if __name__ == "__main__":
         try:
             valid_volume = volume_series[~np.isnan(volume_series) & ~np.isinf(volume_series)]
             valid_returns = log_returns[~np.isnan(log_returns) & ~np.isinf(log_returns)]
-            
+
             if len(valid_volume) > 0 and len(valid_returns) > 0:
                 volume_mapping = quantile_mapping(valid_volume.values, num_letters=20)
                 returns_mapping = quantile_mapping(valid_returns.values, num_letters=20)
-                
+
                 volume_message = encode_array(volume_series.fillna(0).values, volume_mapping)
                 price_message = encode_array(log_returns.fillna(0).values, returns_mapping)
-                
+
                 volume_entropy_val = get_shannon_entropy(volume_message)
                 price_entropy_lz_val = get_lempel_ziv_entropy(price_message)
                 price_entropy_konto_val = get_konto_entropy(price_message)
@@ -809,7 +809,7 @@ if __name__ == "__main__":
         X_reduced = X.drop(columns=[feature])
         X_train_reduced = X_reduced.iloc[:train_size]
         X_test_reduced = X_reduced.iloc[train_size:]
-        
+
         model_reduced = CatBoostClassifier(**params, verbose=0)
         model_reduced.fit(
             X_train_reduced,
@@ -818,7 +818,7 @@ if __name__ == "__main__":
             eval_set=(X_test_reduced, y_test_simple),
             verbose=0
         )
-        
+
         y_pred_proba = model_reduced.predict_proba(X_test_reduced)[:, 1]
         score_without_feature = log_loss(y_test_simple, y_pred_proba, sample_weight=weights_test_simple)
         impact = score_without_feature - base_score
