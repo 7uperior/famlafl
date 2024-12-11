@@ -88,8 +88,12 @@ class FractionalDifferentiation:
         # 3. Apply weights to values
         output_df = {}
         for name in series.columns:
-            series_f = series[[name]].fillna(method='ffill').dropna()
-            output_df_ = pd.Series(index=series.index, dtype='float64')
+            series_f = series.loc[:, [name]].ffill().dropna()
+            output_df_: pd.Series = pd.Series(
+                index=series.index,
+                dtype=np.float64,
+                name=name
+            )
 
             for iloc in range(skip, series_f.shape[0]):
                 loc = series_f.index[iloc]
