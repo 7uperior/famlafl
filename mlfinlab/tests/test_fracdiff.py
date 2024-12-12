@@ -74,7 +74,7 @@ class TestFractionalDifferentiation(unittest.TestCase):
         for diff_amt in np.arange(0.1, 1, 0.1):
             fd_series = fracdiff.frac_diff(data_series, diff_amt=diff_amt)
             self.assertTrue(fd_series.shape[0] == len(data_series))
-            self.assertTrue(isinstance(fd_series['close'][0], float64) and math.isnan(fd_series['close'][0]))
+            self.assertTrue(isinstance(fd_series['close'].iloc[0], np.float64) and math.isnan(fd_series['close'].iloc[0]))
 
     def test_frac_diff_ffd(self):
         """
@@ -87,7 +87,7 @@ class TestFractionalDifferentiation(unittest.TestCase):
         for diff_amt in np.arange(0.1, 1, 0.1):
             fd_series = fracdiff.frac_diff_ffd(data_series, diff_amt=diff_amt)
             self.assertTrue(fd_series.shape[0] == len(data_series))
-            self.assertTrue(isinstance(fd_series['close'][0], float64) and math.isnan(fd_series['close'][0]))
+            self.assertTrue(isinstance(fd_series['close'].iloc[0], np.float64) and math.isnan(fd_series['close'].iloc[0]))
 
     def test_plot_min_ffd(self):
         """

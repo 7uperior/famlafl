@@ -6,7 +6,7 @@ import unittest
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.linear_model import LinearRegression
-from sklearn.datasets import load_boston, load_breast_cancer
+from sklearn.datasets import fetch_california_housing, load_breast_cancer
 from mlfinlab.feature_importance import RegressionModelFingerprint, ClassificationModelFingerprint
 
 
@@ -23,7 +23,7 @@ class TestModelFingerprint(unittest.TestCase):
         Set the file path for the sample dollar bars data.
         """
 
-        self.X, self.y = load_boston(return_X_y=True)
+        self.X, self.y = fetch_california_housing(return_X_y=True)
         self.X = pd.DataFrame(self.X[:100])
         self.y = pd.Series(self.y[:100])
 

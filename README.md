@@ -1,7 +1,5 @@
-<div align="center">
-   <a href="https://hudsonthames.org/">
-   <img src="https://raw.githubusercontent.com/hudson-and-thames/mlfinlab/master/.github/logo/hudson_and_thames_logo.png" height="300"><br>
-</div>
+poetry remove mlfinlab
+poetry add ./mlfinlab
 
 
 -----------------

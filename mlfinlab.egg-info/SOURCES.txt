@@ -198,6 +198,6 @@ mlfinlab/util/__init__.py
 mlfinlab/util/fast_ewma.py
 mlfinlab/util/generate_dataset.py
 mlfinlab/util/misc.py
-mlfinlab/util/multi_asyn_process.py
+mlfinlab/util/multiprocess.py
 mlfinlab/util/volatility.py
 mlfinlab/util/volume_classifier.py

@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+.venv/*
+poetry.lock
+*.egg-info/
+
+# Distribution / packaging
+build/
+dist/
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python tools
+coverage.xml
+htmlcov/
+.mypy_cache/
+.pytest_cache/
+.tox/
+pytestdebug.log
+ruff_cache/
+.cache/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# Other
+.env
+catboost_info/
