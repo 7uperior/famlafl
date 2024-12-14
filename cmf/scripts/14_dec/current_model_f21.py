@@ -1,5 +1,6 @@
 import time
 from datetime import datetime, timedelta, timezone
+from multiprocessing import get_context
 from typing import Union
 
 import numpy as np
@@ -8,7 +9,6 @@ import polars as pl
 from catboost import CatBoostClassifier
 from sklearn.metrics import log_loss
 from sklearn.model_selection import TimeSeriesSplit
-from multiprocessing import get_context
 
 number_of_CPU = 16
 
@@ -103,6 +103,8 @@ def calculate_large_density(lobs: pd.DataFrame, volume_series: pd.Series) -> pd.
 #featues from agg_trades
 #14 Fractionally Differentiated Prices
 from mlfinlab.features.fracdiff import frac_diff_ffd
+
+
 def apply_fractional_differentiation(series: pd.Series, diff_amt: float, thresh: float = 1e-5) -> pd.Series:
     """
     Apply fractional differentiation to a time series.
@@ -117,20 +119,20 @@ def apply_fractional_differentiation(series: pd.Series, diff_amt: float, thresh:
     """
     # Convert Series to DataFrame while preserving the index
     df = pd.DataFrame(series)
-    
+
     # Apply fractional differentiation
     result = frac_diff_ffd(df, diff_amt, thresh)
-    
+
     # Convert back to Series while preserving the index
     return pd.Series(result.iloc[:, 0], index=series.index)
 
 def process_instrument_diff(args):
     """Helper function to process fractional differentiation for one instrument and diff_amount"""
     trades_df, instrument, diff_amt, target_index = args
-    
+
     bid_price = apply_fractional_differentiation(trades_df['bid_mean_price'], diff_amt=diff_amt).asof(target_index)
     ask_price = apply_fractional_differentiation(trades_df['ask_mean_price'], diff_amt=diff_amt).asof(target_index)
-    
+
     return {
         f'frac_diff_{instrument}_bid_mean_price_{diff_amt}': bid_price,
         f'frac_diff_{instrument}_ask_mean_price_{diff_amt}': ask_price
@@ -148,10 +150,10 @@ def calc_features(
     """Calculate features and align them with the target data."""
 
 
-    #14 
+    #14
     # diff_amounts = [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1]
     diff_amounts = [0.5]
-    
+
     # Prepare arguments for parallel processing
     parallel_args = []
     for diff_amt in diff_amounts:
@@ -316,7 +318,7 @@ if __name__ == '__main__':
     print_time_taken(data_load_start, "Data Loading")
 
 
-    
+
     # Start timing for feature generation
     print("\n=== Starting Feature Generation ===")
     feature_gen_start = time.time()

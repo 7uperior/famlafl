@@ -1,22 +1,20 @@
 import time
 from datetime import datetime, timedelta, timezone
+from multiprocessing import get_context
 from typing import Union
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import polars as pl
+import shap
 from catboost import CatBoostClassifier
-from sklearn.metrics import log_loss
-from sklearn.model_selection import TimeSeriesSplit
-from multiprocessing import get_context
-
 from sklearn.feature_selection import SelectFromModel
-from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import Lasso
+from sklearn.metrics import log_loss
+from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 from sklearn.preprocessing import StandardScaler
 
-import shap
-import matplotlib.pyplot as plt
 from mlfinlab.features.fracdiff import frac_diff_ffd
 
 number_of_CPU = 16
@@ -117,6 +115,8 @@ def calculate_large_density(lobs: pd.DataFrame, volume_series: pd.Series) -> pd.
 #featues from agg_trades
 #14 Fractionally Differentiated Prices
 from mlfinlab.features.fracdiff import frac_diff_ffd
+
+
 def apply_fractional_differentiation(series: pd.Series, diff_amt: float, thresh: float = 1e-5) -> pd.Series:
     """
     Apply fractional differentiation to a time series.
@@ -131,20 +131,20 @@ def apply_fractional_differentiation(series: pd.Series, diff_amt: float, thresh:
     """
     # Convert Series to DataFrame while preserving the index
     df = pd.DataFrame(series)
-    
+
     # Apply fractional differentiation
     result = frac_diff_ffd(df, diff_amt, thresh)
-    
+
     # Convert back to Series while preserving the index
     return pd.Series(result.iloc[:, 0], index=series.index)
 
 def process_instrument_diff(args):
     """Helper function to process fractional differentiation for one instrument and diff_amount"""
     trades_df, instrument, diff_amt, target_index = args
-    
+
     bid_price = apply_fractional_differentiation(trades_df['bid_mean_price'], diff_amt=diff_amt).asof(target_index)
     ask_price = apply_fractional_differentiation(trades_df['ask_mean_price'], diff_amt=diff_amt).asof(target_index)
-    
+
     return {
         f'frac_diff_{instrument}_bid_mean_price_{diff_amt}': bid_price,
         f'frac_diff_{instrument}_ask_mean_price_{diff_amt}': ask_price
@@ -162,10 +162,10 @@ def calc_features(
     """Calculate features and align them with the target data."""
 
 
-    #14 
+    #14
     # diff_amounts = [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1]
     diff_amounts = [0.5]
-    
+
     # Prepare arguments for parallel processing
     parallel_args = []
     for diff_amt in diff_amounts:
@@ -283,23 +283,20 @@ if __name__ == '__main__':
 
     import time
     from datetime import datetime, timedelta, timezone
+    from multiprocessing import get_context
     from typing import Union
 
+    import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
     import polars as pl
-    from catboost import CatBoostClassifier
-    from sklearn.metrics import log_loss
-    from sklearn.model_selection import TimeSeriesSplit
-    from multiprocessing import get_context
-
-    from sklearn.feature_selection import SelectFromModel
-    from sklearn.model_selection import GridSearchCV
-    from sklearn.linear_model import Lasso
-    from sklearn.preprocessing import StandardScaler
-
     import shap
-    import matplotlib.pyplot as plt
+    from catboost import CatBoostClassifier
+    from sklearn.feature_selection import SelectFromModel
+    from sklearn.linear_model import Lasso
+    from sklearn.metrics import log_loss
+    from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
+    from sklearn.preprocessing import StandardScaler
 
     rows_per_fold = 1381903/folds_count
     print(f"in every fold: {rows_per_fold:,.0f}".replace(",", " "))
@@ -355,7 +352,7 @@ if __name__ == '__main__':
     print_time_taken(data_load_start, "Data Loading")
 
 
-    
+
     # Start timing for feature generation
     print("\n=== Starting Feature Generation ===")
     feature_gen_start = time.time()
@@ -435,10 +432,10 @@ if __name__ == '__main__':
         X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train), index=X_train.index, columns=X_train.columns)
         # X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train), index=X_train.index, columns=X_train.columns)
         X_test_scaled = pd.DataFrame(scaler.transform(X_test), index=X_test.index, columns=X_test.columns)
-        
+
         # Print scaled data stats
         print("X_train scaled stats:\n", X_train_scaled.describe())
-        print("X_test scaled stats:\n", X_test_scaled.describe())  
+        print("X_test scaled stats:\n", X_test_scaled.describe())
 
         # Use the rolling window for feature selection
         if len(X_train) > rolling_window_for_feature_selection:
@@ -481,7 +478,7 @@ if __name__ == '__main__':
         selector.fit(X_train_fs, y_train_fs)
 
         feature_names = X_train_fs.columns[selector.get_support()]
- 
+
 
         # Transform the data while preserving feature names
         X_train_feature_selected = X_train_scaled[feature_names]
@@ -570,12 +567,12 @@ if __name__ == '__main__':
 
     ###############################
     # 3. SHAP Feature Importance
-    ############################### 
+    ###############################
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_train_feature_selected)
     plt.figure()
     shap.summary_plot(shap_values, X_train_feature_selected, plot_type="bar", show=False)
-    plt.title("SHAP Feature Importance (Global)")   
+    plt.title("SHAP Feature Importance (Global)")
     plt.savefig(f'{path_to_model_folder}shap_feature_importance_{model_name}.png')
     plt.close()
     print(f"SHAP Feature Importance saved as: shap_feature_importance_{model_name}.png")
@@ -584,7 +581,7 @@ if __name__ == '__main__':
     print(f"SHAP Feature Importance saved as: shap_feature_importance_{model_name}.csv")
     mean_abs_shap = pd.Series(abs(shap_values).mean(axis=0), index=final_feature_names)
     shap_importance_df = mean_abs_shap.sort_values(ascending=False).reset_index()
-    shap_importance_df.columns = ['Feature', 'MeanAbsSHAP'] 
+    shap_importance_df.columns = ['Feature', 'MeanAbsSHAP']
     shap_importance_df.to_csv(f'{path_to_model_folder}mean_abs_shap_feature_importance_{model_name}.csv', index=False)
     print(f"SHAP Feature Importance saved as: mean_abs_shap_feature_importance_{model_name}.csv")
     print("=== SHAP Feature Importances ===")
