@@ -1,0 +1,14 @@
+Feature,CatBoost_Importance
+distance_to_mid_price,45.53812172824158
+imbalance_lvl_5,19.658234786183847
+open_interest,15.1568080267239
+atr_volume,8.703828098290057
+imbalance_lvl_10,6.64331911412082
+imbalance_lvl_20,4.2116400978415305
+volume,0.08804814859827038
+frac_diff_ethusdt_ask_mean_price_0.5,0.0
+frac_diff_solusdt_ask_mean_price_0.5,0.0
+frac_diff_solusdt_bid_mean_price_0.5,0.0
+frac_diff_ethusdt_bid_mean_price_0.5,0.0
+frac_diff_btcusdt_ask_mean_price_0.5,0.0
+main_ethusdt_dev,0.0

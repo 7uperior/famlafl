@@ -1,28 +1,16 @@
 import time
 from datetime import datetime, timedelta, timezone
-from multiprocessing import get_context
 from typing import Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import polars as pl
-import shap
 from catboost import CatBoostClassifier
-from sklearn.feature_selection import SelectFromModel
-from sklearn.linear_model import Lasso
 from sklearn.metrics import log_loss
-from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
-from sklearn.preprocessing import StandardScaler
-
-from mlfinlab.features.fracdiff import frac_diff_ffd
+from sklearn.model_selection import TimeSeriesSplit
+from multiprocessing import get_context
 
 number_of_CPU = 16
-path_to_model_folder = "./cmf/models/"
-folds_count = 15
-
-rolling_window_for_feature_selection = 666 #TODO: make this dynamic (1) and with volume, not timestamp (2)
-
 
 # Constants for time conversions
 NANOSECOND = 1
@@ -112,43 +100,6 @@ def calculate_large_density(lobs: pd.DataFrame, volume_series: pd.Series) -> pd.
 
 #13  ATR for volume using volume series
 
-#featues from agg_trades
-#14 Fractionally Differentiated Prices
-from mlfinlab.features.fracdiff import frac_diff_ffd
-
-
-def apply_fractional_differentiation(series: pd.Series, diff_amt: float, thresh: float = 1e-5) -> pd.Series:
-    """
-    Apply fractional differentiation to a time series.
-
-    Parameters:
-    - series: pd.Series containing the time series data with datetime index
-    - diff_amt: float, the differencing amount
-    - thresh: float, threshold for minimum weight (default is 1e-5)
-
-    Returns:
-    - pd.Series with the fractionally differenced series, preserving the datetime index
-    """
-    # Convert Series to DataFrame while preserving the index
-    df = pd.DataFrame(series)
-
-    # Apply fractional differentiation
-    result = frac_diff_ffd(df, diff_amt, thresh)
-
-    # Convert back to Series while preserving the index
-    return pd.Series(result.iloc[:, 0], index=series.index)
-
-def process_instrument_diff(args):
-    """Helper function to process fractional differentiation for one instrument and diff_amount"""
-    trades_df, instrument, diff_amt, target_index = args
-
-    bid_price = apply_fractional_differentiation(trades_df['bid_mean_price'], diff_amt=diff_amt).asof(target_index)
-    ask_price = apply_fractional_differentiation(trades_df['ask_mean_price'], diff_amt=diff_amt).asof(target_index)
-
-    return {
-        f'frac_diff_{instrument}_bid_mean_price_{diff_amt}': bid_price,
-        f'frac_diff_{instrument}_ask_mean_price_{diff_amt}': ask_price
-    }
 
 def calc_features(
     lobs: pd.DataFrame,
@@ -160,29 +111,6 @@ def calc_features(
     target_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Calculate features and align them with the target data."""
-
-
-    #14
-    # diff_amounts = [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1]
-    diff_amounts = [0.5]
-
-    # Prepare arguments for parallel processing
-    parallel_args = []
-    for diff_amt in diff_amounts:
-        parallel_args.extend([
-            (solusdt_trades, 'solusdt', diff_amt, target_data.index),
-            (btcusdt_trades, 'btcusdt', diff_amt, target_data.index),
-            (ethusdt_trades, 'ethusdt', diff_amt, target_data.index)
-        ])
-
-    # Process in parallel using all available CPU cores
-    with get_context("spawn").Pool(processes=number_of_CPU) as pool:
-        results = pool.map(process_instrument_diff, parallel_args)
-
-    # Combine all results
-    frac_diff_features = {}
-    for result in results:
-        frac_diff_features.update(result)
 
     lobs["mid_price"] = (lobs["asks[0].price"] + lobs["bids[0].price"]) / 2
 
@@ -248,7 +176,6 @@ def calc_features(
     return pd.concat(
         [
             target_data.side,
-            *[pd.Series(v).rename(k) for k, v in frac_diff_features.items()], # Add each fractional differentiation feature with rename
             vwap_series.rename("vwap"),
             trades_ratio_series.rename("trades_ratio"),
             distance_to_mid_price.rename("distance_to_mid_price"),
@@ -280,28 +207,6 @@ def print_time_taken(start_time, section_name):
 
 
 if __name__ == '__main__':
-
-    import time
-    from datetime import datetime, timedelta, timezone
-    from multiprocessing import get_context
-    from typing import Union
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import pandas as pd
-    import polars as pl
-    import shap
-    from catboost import CatBoostClassifier
-    from sklearn.feature_selection import SelectFromModel
-    from sklearn.linear_model import Lasso
-    from sklearn.metrics import log_loss
-    from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
-    from sklearn.preprocessing import StandardScaler
-
-    rows_per_fold = 1381903/folds_count
-    print(f"in every fold: {rows_per_fold:,.0f}".replace(",", " "))
-
-
     # Start timing for data loading
     print("\n=== Starting Data Loading ===")
     data_load_start = time.time()
@@ -352,7 +257,7 @@ if __name__ == '__main__':
     print_time_taken(data_load_start, "Data Loading")
 
 
-
+    
     # Start timing for feature generation
     print("\n=== Starting Feature Generation ===")
     feature_gen_start = time.time()
@@ -373,6 +278,8 @@ if __name__ == '__main__':
 
     print_time_taken(feature_gen_start, "Feature Generation")  # Add this line
 
+    # TimeSeriesSplit configuration
+    tscv = TimeSeriesSplit(n_splits=5, gap = 10)
 
     params_research = {
         "use_best_model": True,
@@ -382,12 +289,9 @@ if __name__ == '__main__':
         "loss_function": "Logloss",
         "l2_leaf_reg": 50,
         "task_type": "CPU",
-        "depth": 6,
-        "early_stopping_rounds": 300,
+        "depth": 8,
+        "early_stopping_rounds": 50,
         "learning_rate": 0.01,
-        "border_count": 128,
-        "random_seed": 42,
-        "verbose": 100
     }
 
     # params_boyko_model = {
@@ -403,10 +307,6 @@ if __name__ == '__main__':
     #     "learning_rate": 0.01
     # }
 
-
-    # TimeSeriesSplit configuration
-    tscv = TimeSeriesSplit(n_splits=folds_count, gap = 10)
-
     log_loss_values = []
     weighted_log_loss_values = []
 
@@ -420,84 +320,17 @@ if __name__ == '__main__':
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
         weights_train, weights_test = weights.iloc[train_index], weights.iloc[test_index]
 
-
-        X_train = X_train.ffill().bfill()
-        X_test = X_test.ffill().bfill()
-
-        print("X_train NaN count after imputation:\n", X_train.isna().sum())
-        print("X_test NaN count after imputation:\n", X_test.isna().sum())
-
-        # Scale the data for preprocessing
-        scaler = StandardScaler()
-        X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train), index=X_train.index, columns=X_train.columns)
-        # X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train), index=X_train.index, columns=X_train.columns)
-        X_test_scaled = pd.DataFrame(scaler.transform(X_test), index=X_test.index, columns=X_test.columns)
-
-        # Print scaled data stats
-        print("X_train scaled stats:\n", X_train_scaled.describe())
-        print("X_test scaled stats:\n", X_test_scaled.describe())
-
-        # Use the rolling window for feature selection
-        if len(X_train) > rolling_window_for_feature_selection:
-            X_train_fs = X_train_scaled.iloc[-rolling_window_for_feature_selection:]
-            y_train_fs = y_train.iloc[-rolling_window_for_feature_selection:]
-        else:
-            X_train_fs = X_train_scaled
-            y_train_fs = y_train
-
-        # Add before the Lasso part
-        print("\nX_train info:")
-        print(X_train_fs.info())
-        print("\nX_train NaN counts:")
-        print(X_train_fs.isna().sum())
-        print("\nX_train shape:", X_train_fs.shape)
-        print("\nFirst few rows with NaN values:")
-        print(X_train_fs[X_train_fs.isna().any(axis=1)].head())
-
-
-        print("X_train NaN count after imputation:\n", X_train.isna().sum())
-        print("X_test NaN count after imputation:\n", X_test.isna().sum())
-
-
-
-
-        # Fit an L1-regularized model (Lasso) on the rolling window portion
-        # Adjust the alpha parameter to control sparsity
-        # Hyperparameter tuning for Lasso
-        param_grid = {'alpha': [0.01, 0.1, 1, 10]}
-        grid_search = GridSearchCV(Lasso(max_iter=100000), param_grid, cv=folds_count)
-        grid_search.fit(X_train_fs, y_train_fs)
-
-        lasso = grid_search.best_estimator_
-        print(f"Best alpha for Lasso: {grid_search.best_params_['alpha']}")
-
-
-
-        # Use SelectFromModel to select features with non-zero coefficients
-        selector = SelectFromModel(lasso, prefit=True)
-        selector.fit(X_train_fs, y_train_fs)
-
-        feature_names = X_train_fs.columns[selector.get_support()]
-
-
-        # Transform the data while preserving feature names
-        X_train_feature_selected = X_train_scaled[feature_names]
-        X_test_feature_selected = X_test_scaled[feature_names]
-
-
-        print(f'X_train_feature_selectedfeature names: {X_train_feature_selected.columns}')
-        print(f'X_test_feature_selected feature names: {X_test_feature_selected.columns}')
-
         model = CatBoostClassifier(**params_research)
         model.fit(
-            X_train_feature_selected,
+            X_train,
             y_train,
             sample_weight=weights_train,
-            eval_set=(X_test_feature_selected, y_test)
+            eval_set=(X_test, y_test),
+            verbose=100
         )
 
         # Evaluate model
-        y_pred_proba = model.predict_proba(X_test_feature_selected)[:, 1]
+        y_pred_proba = model.predict_proba(X_test)[:, 1]
         log_loss_value = log_loss(y_test, y_pred_proba)
         log_loss_value_weighted = log_loss(y_test, y_pred_proba, sample_weight=weights_test)
 
@@ -524,8 +357,9 @@ if __name__ == '__main__':
     gmt_plus_3 = timezone(timedelta(hours=3))
     now_gmt_plus_3 = datetime.now(gmt_plus_3)
     timestamp = now_gmt_plus_3.strftime("%Y-%b-%d_%H-%M")
-    model_name = f"model__LassoFS_count{features_count}_loglloss{final_log_loss}_{timestamp}.cbm"
+    model_name = f"model_count{features_count}_loglloss{final_log_loss}_{timestamp}.cbm"
 
+    path_to_model_folder = "./cmf/models/"
     model.save_model(f'{path_to_model_folder}{model_name}')
     print(f"Model saved as: {model_name}")
     print_time_taken(saving_start, "Model Saving")
@@ -533,63 +367,12 @@ if __name__ == '__main__':
     # Start timing for feature importance saving
     print("\n=== Starting Feature Importance Saving ===")
     feature_importance_saving_start = time.time()
-    final_feature_names = X_train_feature_selected.columns
-
-
-    ###########################################################
-    # 1. CatBoost Feature Importance
-    ###########################################################
-    catboost_importances = model.get_feature_importance(type='PredictionValuesChange')
-    catboost_importance_df = pd.DataFrame({
-        'Feature': final_feature_names,
-        'CatBoost_Importance': catboost_importances
-    }).sort_values(by='CatBoost_Importance', ascending=False)
-    catboost_importance_df.to_csv(f'{path_to_model_folder}feature_importance_catboost_{model_name}.csv', index=False)
-    print(f"CatBoost Feature importance saved as: feature_importance_catboost_{model_name}.csv")
-    print("=== CatBoost Feature Importances ===")
-    print(catboost_importance_df)
-    print()
-
-
-    ###########################################################
-    # 2. Sklearn-like Feature Importance
-    ###########################################################
-    sklearn_like_importances =  model.get_feature_importance(type='FeatureImportance')
-    sklearn_importance_df = pd.DataFrame({
-        'Feature': final_feature_names,
-        'Sklearn_Like_Importance': sklearn_like_importances
-    }).sort_values(by='Sklearn_Like_Importance', ascending=False)
-    sklearn_importance_df.to_csv(f'{path_to_model_folder}feature_importance_sklearn_feature_importances_{model_name}.csv', index=False)
-    print(f"Sklearn Feature Importance saved as: feature_importance_sklearn_feature_importances_{model_name}.csv")
-    print("=== Sklearn-like Feature Importances ===")
-    print(sklearn_importance_df)
-    print()
-
-    ###############################
-    # 3. SHAP Feature Importance
-    ###############################
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(X_train_feature_selected)
-    plt.figure()
-    shap.summary_plot(shap_values, X_train_feature_selected, plot_type="bar", show=False)
-    plt.title("SHAP Feature Importance (Global)")
-    plt.savefig(f'{path_to_model_folder}shap_feature_importance_{model_name}.png')
-    plt.close()
-    print(f"SHAP Feature Importance saved as: shap_feature_importance_{model_name}.png")
-    shap_values_df = pd.DataFrame(shap_values, columns=final_feature_names, index=X_train_feature_selected.index)
-    shap_values_df.to_csv(f'{path_to_model_folder}shap_feature_importance_{model_name}.csv', index=False)
-    print(f"SHAP Feature Importance saved as: shap_feature_importance_{model_name}.csv")
-    mean_abs_shap = pd.Series(abs(shap_values).mean(axis=0), index=final_feature_names)
-    shap_importance_df = mean_abs_shap.sort_values(ascending=False).reset_index()
-    shap_importance_df.columns = ['Feature', 'MeanAbsSHAP']
-    shap_importance_df.to_csv(f'{path_to_model_folder}mean_abs_shap_feature_importance_{model_name}.csv', index=False)
-    print(f"SHAP Feature Importance saved as: mean_abs_shap_feature_importance_{model_name}.csv")
-    print("=== SHAP Feature Importances ===")
-    print(shap_importance_df)
-    print()
-
-
-
+    feature_importances = model.get_feature_importance(type='PredictionValuesChange')
+    feature_names = X.columns
+    feature_importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': feature_importances})
+    feature_importance_df= feature_importance_df.sort_values(by='Importance', ascending=False)
+    feature_importance_df.to_csv(f'{path_to_model_folder}feature_importance_{model_name}.csv', index=False)
+    print(f"Feature importance saved as: feature_importance_{model_name}.csv")
     print_time_taken(feature_importance_saving_start, "Feature Importance Saving")
 
 
