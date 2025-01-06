@@ -1,5 +1,5 @@
 
-MlFinlab is a python package which helps portfolio managers and traders who want to leverage the power of machine learning by providing reproducible, interpretable, and easy to use tools. 
+MlFinlab-esem (based on MlFinlab of Hudson and Thames Quantitative Research <research@hudsonthames.org>) is a python package which helps portfolio managers and traders who want to leverage the power of machine learning by providing reproducible, interpretable, and easy to use tools. 
 
 ## Installation
 

@@ -1,13 +1,12 @@
 [tool.poetry]
-name = "mlfinlab"
+name = "mlfinlab_esem"
 version = "0.13.0"
-description = "MlFinlab helps portfolio managers and traders who want to leverage the power of machine learning by providing reproducible, interpretable, and easy to use tools."
-authors = ["Hudson and Thames Quantitative Research <research@hudsonthames.org>"]
+description = "MlFinlab-ESEM helps portfolio managers and traders who want to leverage the power of machine learning by providing reproducible, interpretable, and easy to use tools."
+authors = ["Hudson and Thames Quantitative Research <research@hudsonthames.org>",
+"Vadim Surin <vdmsurin@gmail.com>"
+]
 license = "MIT"
 readme = "README.md"
-homepage = "https://www.hudsonthames.org/"
-repository = "https://github.com/hudson-and-thames/mlfinlab"
-documentation = "https://mlfinlab.readthedocs.io/en/latest/"
 keywords = ["machinelearning", "finance", "investment", "education"]
 classifiers = [
     "Development Status :: 3 - Alpha",
