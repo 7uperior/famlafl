@@ -38,8 +38,7 @@ class TestLabelingOverMean(unittest.TestCase):
                                     index=self.data[cols].iloc[0:5].index)
         test2_actual = test1_actual.apply(np.sign)
 
-        # Check less precise because calculated numbers have more decimal places than inputted ones.
-        pd.testing.assert_frame_equal(test1, test1_actual, check_less_precise=True)
+        pd.testing.assert_frame_equal(test1, test1_actual, rtol=0.001)
         pd.testing.assert_frame_equal(test2, test2_actual)
 
     def test_large_set(self):
@@ -54,7 +53,7 @@ class TestLabelingOverMean(unittest.TestCase):
                                   0.0050173, 0.0002504, -0.0004207, -0.018707, -0.013208, -0.00818807, -0.002897],
                                  index=idx42)
 
-        pd.testing.assert_series_equal(test3, test3_actual, check_less_precise=True, check_names=False)
+        pd.testing.assert_series_equal(test3, test3_actual, rtol=0.001, check_names=False)
 
         test4 = excess_over_mean(self.data, lag=True).iloc[-1]
         self.assertTrue(test4.isnull().all())
@@ -84,6 +83,6 @@ class TestLabelingOverMean(unittest.TestCase):
                                      'EWJ': [np.nan, -0.016684, -0.002956, 0.029392, -0.009471]},
                                     index=month_idx)
 
-        pd.testing.assert_frame_equal(test5, test5_actual, check_less_precise=True)
-        pd.testing.assert_frame_equal(test6, test6_actual, check_less_precise=True)
+        pd.testing.assert_frame_equal(test5, test5_actual, rtol=0.001)
+        pd.testing.assert_frame_equal(test6, test6_actual, rtol=0.001)
         pd.testing.assert_frame_equal(test7, test6_actual.apply(np.sign))

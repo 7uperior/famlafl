@@ -81,7 +81,7 @@ class StandardBars(BaseBars):
             else:
                 # If the threshold is changing, then the threshold defined just before
                 # sampling time is used
-                threshold = self.threshold.iloc[self.threshold.index.get_loc(date_time, method='pad')]
+                threshold = self.threshold.iloc[self.threshold.index.get_indexer([date_time], method='pad')[0]]
 
             if self.open_price is None:
                 self.open_price = price

@@ -5,6 +5,7 @@ Logic regarding sequential bootstrapping from chapter 4.
 import pandas as pd
 import numpy as np
 from numba import jit, prange
+from numpy import float64
 
 
 def get_ind_matrix(samples_info_sets, price_bars):
@@ -40,9 +41,13 @@ def get_ind_matrix(samples_info_sets, price_bars):
     # Get sorted timestamps with index in sorted array
     sorted_timestamps = dict(zip(bar_index, range(len(bar_index))))
 
-    tokenized_endtimes = np.column_stack((label_endtime.index.map(sorted_timestamps), label_endtime.map(
-        sorted_timestamps).values))  # Create array of arrays: [label_index_position, label_endtime_position]
+    # Map indices and end times to sorted timestamps
+    label_start_positions = label_endtime.index.map(sorted_timestamps).astype(int)
+    label_end_positions = label_endtime.map(sorted_timestamps).astype(int)
 
+
+    tokenized_endtimes = np.column_stack((label_start_positions, label_end_positions))
+    
     ind_mat = np.zeros((len(bar_index), len(label_endtime)))  # Init indicator matrix
     for sample_num, label_array in enumerate(tokenized_endtimes):
         label_index = label_array[0]
@@ -64,6 +69,8 @@ def get_ind_mat_average_uniqueness(ind_mat):
     :param ind_mat: (np.matrix) Indicator binary matrix
     :return: (float) Average uniqueness
     """
+    if ind_mat.size == 0:
+        return 0.0
     ind_mat = np.array(ind_mat, dtype=float64)
     concurrency = ind_mat.sum(axis=1)
     uniqueness = np.divide(ind_mat.T, concurrency, out=np.zeros_like(ind_mat.T), where=concurrency != 0)
@@ -82,6 +89,8 @@ def get_ind_mat_label_uniqueness(ind_mat):
     :param ind_mat: (np.matrix) Indicator binary matrix
     :return: (np.matrix) Element uniqueness
     """
+    if ind_mat.size == 0:
+        return np.array([])
     ind_mat = np.array(ind_mat, dtype=float64)
     concurrency = ind_mat.sum(axis=1)
     uniqueness = np.divide(ind_mat.T, concurrency, out=np.zeros_like(ind_mat.T), where=concurrency != 0)

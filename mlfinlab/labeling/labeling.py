@@ -10,7 +10,7 @@ from mlfinlab.util.multiprocess import mp_pandas_obj
 
 
 # Snippet 3.2, page 45, Triple Barrier Labeling Method
-def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
+def apply_pt_sl_on_t1(close, events, pt_sl, molecule, **kwargs):  # pragma: no cover
     """
     Advances in Financial Machine Learning, Snippet 3.2, page 45.
 
@@ -26,6 +26,7 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
     for more details)
     :param pt_sl: (np.array) Element 0, indicates the profit taking level; Element 1 is stop loss level
     :param molecule: (an array) A set of datetime index values for processing
+    :param kwargs: Additional keyword arguments (ignored)
     :return: (pd.DataFrame) Timestamps of when first barrier was touched
     """
     # Apply stop loss/profit taking, if it takes place before t1 (end of event)
@@ -51,7 +52,7 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
     out['sl'] = pd.Series(dtype=events.index.dtype)
 
     # Get events
-    for loc, vertical_barrier in events_['t1'].fillna(close.index[-1]).iteritems():
+    for loc, vertical_barrier in events_['t1'].fillna(close.index[-1]).items():
         closing_prices = close[loc: vertical_barrier]  # Path prices for a given trade
         cum_returns = (closing_prices / close[loc] - 1) * events_.at[loc, 'side']  # Path returns
         out.at[loc, 'sl'] = cum_returns[cum_returns < stop_loss[loc]].index.min()  # Earliest stop loss date
@@ -133,6 +134,7 @@ def get_events(close, t_events, pt_sl, target, min_ret, num_threads, vertical_ba
     # 1) Get target
     target = target.reindex(t_events)
     target = target[target > min_ret]  # min_ret
+    target = target.dropna()  # Drop NaN values
 
     # 2) Get vertical barrier (max holding period)
     if vertical_barrier_times is False:
@@ -153,11 +155,10 @@ def get_events(close, t_events, pt_sl, target, min_ret, num_threads, vertical_ba
     # Apply Triple Barrier
     first_touch_dates = mp_pandas_obj(func=apply_pt_sl_on_t1,
                                       pd_obj=('molecule', events.index),
-                                      num_threads=num_threads,
+                                      num_threads=1,  # Force single thread for now
                                       close=close,
                                       events=events,
-                                      pt_sl=pt_sl_,
-                                      verbose=verbose)
+                                      pt_sl=pt_sl_)
 
     for ind in events.index:
         events.at[ind, 't1'] = first_touch_dates.loc[ind, :].dropna().min()
@@ -187,8 +188,10 @@ def barrier_touched(out_df, events):
     :param events: (pd.DataFrame) The original events data frame. Contains the pt sl multiples needed here.
     :return: (pd.DataFrame) Returns, target, and labels
     """
-    store = []
-    for date_time, values in out_df.iterrows():
+    # Pre-allocate the store array
+    store = np.zeros(len(out_df))
+    
+    for i, (date_time, values) in enumerate(out_df.iterrows()):
         ret = values['ret']
         target = values['trgt']
 
@@ -197,13 +200,11 @@ def barrier_touched(out_df, events):
 
         if ret > 0.0 and pt_level_reached:
             # Top barrier reached
-            store.append(1)
+            store[i] = 1
         elif ret < 0.0 and sl_level_reached:
             # Bottom barrier reached
-            store.append(-1)
-        else:
-            # Vertical barrier reached
-            store.append(0)
+            store[i] = -1
+        # else: store[i] remains 0 for vertical barrier reached
 
     # Save to 'bin' column and return
     out_df['bin'] = store

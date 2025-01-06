@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "mlfinlab"
+version = "0.13.0"
+description = "MlFinlab helps portfolio managers and traders who want to leverage the power of machine learning by providing reproducible, interpretable, and easy to use tools."
+authors = ["Hudson and Thames Quantitative Research <research@hudsonthames.org>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://www.hudsonthames.org/"
+repository = "https://github.com/hudson-and-thames/mlfinlab"
+documentation = "https://mlfinlab.readthedocs.io/en/latest/"
+keywords = ["machinelearning", "finance", "investment", "education"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education", 
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Office/Business :: Financial :: Investment"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+pandas = "*"
+numpy = "*"
+numba = "*"
+scikit-learn = "*"
+scipy = "*"
+statsmodels = "*"
+matplotlib = "*"
+cvxpy = "*"
+
+[tool.poetry.group.dev.dependencies]
+codecov = "*"
+coverage = "*"
+pylint = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
+pytest = "*"
+pytest-cov = "*"
+
+[tool.poetry.scripts]
+docs = "sphinx.cmd.build:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

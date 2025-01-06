@@ -245,11 +245,12 @@ class BaseBars(ABC):
         cum_ticks = self.cum_statistics['cum_ticks']
         cum_dollar_value = self.cum_statistics['cum_dollar_value']
 
-        # Update bars
-        list_bars.append(
-            [date_time, self.tick_num, open_price, high_price, low_price, close_price, volume, cum_buy_volume,
-             cum_ticks,
-             cum_dollar_value])
+        # Create a new row as a list
+        new_row = [date_time, self.tick_num, open_price, high_price, low_price,
+                  close_price, volume, cum_buy_volume, cum_ticks, cum_dollar_value]
+        
+        # Append the new row to list_bars
+        list_bars.append(new_row)
 
     def _apply_tick_rule(self, price: float) -> int:
         """

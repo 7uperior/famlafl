@@ -63,16 +63,28 @@ def avg_active_signals(signals, num_threads=1):
     :param num_threads: (int) Number of threads to use in multiprocessing, default value is 1.
     :return: (pandas.Series) The averaged bet sizes.
     """
+    if signals.empty:
+        return pd.Series(dtype='float64')
+        
     # 1) Time points where signals change (either one start or one ends).
     t_pnts = set(signals['t1'].dropna().to_numpy())
     t_pnts = t_pnts.union(signals.index.to_numpy())
     t_pnts = list(t_pnts)
     t_pnts.sort()
+    
+    if len(t_pnts) == 0:
+        return pd.Series(dtype='float64')
+        
+    # If only one thread, process directly without multiprocessing
+    if num_threads == 1:
+        return mp_avg_active_signals(signals, t_pnts)
+        
+    # Use multiprocessing for multiple threads
     out = mp_pandas_obj(mp_avg_active_signals, ('molecule', t_pnts), num_threads, signals=signals)
     return out
 
 
-def mp_avg_active_signals(signals, molecule):
+def mp_avg_active_signals(signals, molecule, **kwargs):
     """
     Part of SNIPPET 10.2
     A function to be passed to the 'mp_pandas_obj' function to allow the bet sizes to be averaged using multiprocessing.
@@ -83,8 +95,12 @@ def mp_avg_active_signals(signals, molecule):
 
     :param signals: (pandas.DataFrame) Contains at least the following columns: 'signal' (the bet size) and 't1' (the closing time of the bet).
     :param molecule: (list) Indivisible tasks to be passed to 'mp_pandas_obj', in this case a list of datetimes.
+    :param kwargs: Additional keyword arguments (ignored)
     :return: (pandas.Series) The averaged bet size sub-series.
     """
+    if signals.empty or len(molecule) == 0:
+        return pd.Series(dtype='float64')
+        
     out = pd.Series(dtype='float64')
     for loc in molecule:
         df0 = (signals.index.to_numpy() <= loc)&((loc < signals['t1'])|pd.isnull(signals['t1']))

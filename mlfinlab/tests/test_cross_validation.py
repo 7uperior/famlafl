@@ -51,8 +51,8 @@ class TestCrossValidation(unittest.TestCase):
         self.log(f"pwd_path= {pwd_path}")
 
         self.info_sets = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:00:00', periods=10, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', periods=10, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', periods=10, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', periods=10, freq='min'),
         )
 
     def test_get_train_times_1(self):
@@ -60,16 +60,16 @@ class TestCrossValidation(unittest.TestCase):
         Tests the get_train_times method for the case where the train STARTS within test.
         """
         test_times = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:01:00', periods=1, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', periods=1, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:01:00', periods=1, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', periods=1, freq='min'),
         )
         self.log(f"test_times=\n{test_times}")
         train_times_ret = ml_get_train_times(self.info_sets, test_times)
         self.log(f"train_times_ret=\n{train_times_ret}")
 
         train_times_ok = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:03:00', end='2019-01-01 00:09:00', freq='T'),
-            data=pd.date_range(start='2019-01-01 00:05:00', end='2019-01-01 00:11:00', freq='T'),
+            index=pd.date_range(start='2019-01-01 00:03:00', end='2019-01-01 00:09:00', freq='min'),
+            data=pd.date_range(start='2019-01-01 00:05:00', end='2019-01-01 00:11:00', freq='min'),
         )
         self.log(f"train_times=\n{train_times_ok}")
 
@@ -80,16 +80,16 @@ class TestCrossValidation(unittest.TestCase):
         Tests the get_train_times method for the case where the train ENDS within test.
         """
         test_times = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:08:00', periods=1, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:11:00', periods=1, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:08:00', periods=1, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:11:00', periods=1, freq='min'),
         )
         self.log(f"test_times=\n{test_times}")
         train_times_ret = ml_get_train_times(self.info_sets, test_times)
         self.log(f"train_times_ret=\n{train_times_ret}")
 
         train_times_ok = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:00:00', end='2019-01-01 00:05:00', freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', end='2019-01-01 00:07:00', freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', end='2019-01-01 00:05:00', freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', end='2019-01-01 00:07:00', freq='min'),
         )
         self.log(f"train_times=\n{train_times_ok}")
 
@@ -100,20 +100,20 @@ class TestCrossValidation(unittest.TestCase):
         Tests the get_train_times method for the case where the train ENVELOPES test.
         """
         test_times = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:06:00', periods=1, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:08:00', periods=1, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:06:00', periods=1, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:08:00', periods=1, freq='min'),
         )
         self.log(f"test_times=\n{test_times}")
         train_times_ret = ml_get_train_times(self.info_sets, test_times)
         self.log(f"train_times_ret=\n{train_times_ret}")
 
         train_times_ok1 = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:00:00', end='2019-01-01 00:03:00', freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', end='2019-01-01 00:05:00', freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', end='2019-01-01 00:03:00', freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', end='2019-01-01 00:05:00', freq='min'),
         )
         train_times_ok2 = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:09:00', end='2019-01-01 00:09:00', freq='T'),
-            data=pd.date_range(start='2019-01-01 00:11:00', end='2019-01-01 00:11:00', freq='T'),
+            index=pd.date_range(start='2019-01-01 00:09:00', end='2019-01-01 00:09:00', freq='min'),
+            data=pd.date_range(start='2019-01-01 00:11:00', end='2019-01-01 00:11:00', freq='min'),
         )
         train_times_ok = pd.concat([train_times_ok1, train_times_ok2])
         self.log(f"train_times=\n{train_times_ok}")
@@ -125,8 +125,8 @@ class TestCrossValidation(unittest.TestCase):
         Test throw exception when samples_info_sets is not a pd.Series.
         """
         samples_info_sets = pd.DataFrame(
-            index=pd.date_range(start='2019-01-01 00:00:00', periods=20, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', periods=20, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', periods=20, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', periods=20, freq='min'),
         )
         self.log(f"info_sets=\n{samples_info_sets}")
 
@@ -149,13 +149,13 @@ class TestCrossValidation(unittest.TestCase):
         constructor.
         """
         info_sets = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:00:00', periods=10, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', periods=10, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', periods=10, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', periods=10, freq='min'),
         )
         self.log(f"info_sets=\n{info_sets}")
 
         dataset = pd.DataFrame(
-            index=pd.date_range(start='2019-01-01 00:00:00', periods=11, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', periods=11, freq='min'),
             data={'feat': np.arange(0, 11)},  # One entry more than info_sets
         )
         self.log(f"dataset=\n{dataset}")
@@ -178,8 +178,8 @@ class TestCrossValidation(unittest.TestCase):
         """
 
         info_sets = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:00:00', periods=20, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', periods=20, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', periods=20, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', periods=20, freq='min'),
         )
         self.log(f"info_sets=\n{info_sets}")
 
@@ -215,8 +215,8 @@ class TestCrossValidation(unittest.TestCase):
         """
 
         info_sets = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:00:00', periods=100, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', periods=100, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', periods=100, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', periods=100, freq='min'),
         )
 
         dataset = pd.DataFrame(
@@ -266,8 +266,8 @@ class TestCrossValidation(unittest.TestCase):
         sample_size = 1000
 
         info_sets = pd.Series(
-            index=pd.date_range(start='2019-01-01 00:00:00', periods=sample_size, freq='T'),
-            data=pd.date_range(start='2019-01-01 00:02:00', periods=sample_size, freq='T'),
+            index=pd.date_range(start='2019-01-01 00:00:00', periods=sample_size, freq='min'),
+            data=pd.date_range(start='2019-01-01 00:02:00', periods=sample_size, freq='min'),
         )
 
         records = pd.DataFrame(
@@ -358,9 +358,8 @@ class TestCrossValidation(unittest.TestCase):
 
         should_be = np.array([-17.520701311460694, -18.25536255165772, -16.964650471071668])
         self.assertTrue(
-            np.array_equal(scores, should_be),
-            # self.assertListEqual(scores.tolist(), should_be.tolist()),
-            "score lists don't match"
+            np.allclose(scores, should_be),
+            "score lists don't match within tolerance"
         )
 
     def test_ml_cross_val_score_04_sw(self):

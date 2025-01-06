@@ -149,7 +149,7 @@ class AbstractModelFingerprint(ABC):
             x = self.feature_values[col].reshape(-1, 1)
             y = self.ind_partial_dep_functions[col]
 
-            lmodel = LinearRegression(fit_intercept=True, normalize=False)
+            lmodel = LinearRegression(fit_intercept=True)
             lmodel.fit(x, y)
             y_mean = np.mean(y)
             linear_effect = np.mean(np.abs(lmodel.predict(x) - y_mean))
@@ -169,7 +169,7 @@ class AbstractModelFingerprint(ABC):
             x = self.feature_values[col].reshape(-1, 1)
             y = self.ind_partial_dep_functions[col]
 
-            lmodel = LinearRegression(fit_intercept=True, normalize=False)
+            lmodel = LinearRegression(fit_intercept=True)
             lmodel.fit(x, y)
             nonlinear_effect = np.mean(np.abs(lmodel.predict(x) - y.values))
             store[col] = nonlinear_effect

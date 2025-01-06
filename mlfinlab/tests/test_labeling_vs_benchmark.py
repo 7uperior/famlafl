@@ -44,7 +44,7 @@ class TestReturnOverBenchmark(unittest.TestCase):
                                     index=self.idx10, columns=data3.columns)
         pd.testing.assert_series_equal(test1, test1_actual, check_names=False)
         pd.testing.assert_series_equal(test2, test1_actual.apply(np.sign), check_names=False)
-        pd.testing.assert_frame_equal(test3, test3_actual, check_less_precise=True)
+        pd.testing.assert_frame_equal(test3, test3_actual, rtol=0.001)
 
     def test_given_benchmark(self):
         """

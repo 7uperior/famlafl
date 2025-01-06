@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import comb
 from scipy.stats import gaussian_kde
-from numba import njit, objmode
+from numba import njit, objmode, float64
 
 
 class M2N:
@@ -299,8 +299,8 @@ def most_likely_parameters(data, ignore_columns='error', res=10_000):
     return d_results
 
 
-@njit()
-def iter_4_jit(mu_2, p_1, m_1, m_2, m_3, m_4):  # pragma: no cover
+@njit
+def iter_4_jit(mu_2: float64, p_1: float64, m_1: float64, m_2: float64, m_3: float64, m_4: float64) -> np.ndarray:  # pragma: no cover
     """
     "Numbarized" evaluation of the set of equations that make up variant #1 of the EF3M algorithm (fitting using the
     first four moments).
@@ -377,8 +377,8 @@ def iter_4_jit(mu_2, p_1, m_1, m_2, m_3, m_4):  # pragma: no cover
     return param_list
 
 
-@njit()
-def iter_5_jit(mu_2, p_1, m_1, m_2, m_3, m_4, m_5):  # pragma: no cover
+@njit
+def iter_5_jit(mu_2: float64, p_1: float64, m_1: float64, m_2: float64, m_3: float64, m_4: float64, m_5: float64) -> np.ndarray:  # pragma: no cover
     """
     "Numbarized" evaluation of the set of equations that make up variant #2 of the EF3M algorithm (fitting using the
      first five moments).

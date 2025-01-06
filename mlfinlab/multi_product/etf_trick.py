@@ -320,7 +320,7 @@ class ETFTrick:
                 chunk_etf_series = self._chunk_loop(data_df)
                 if omit_last_row is True:
                     etf_series = etf_series.iloc[:-1]  # Delete last row (chunk_etf_series stores updated row value)
-                etf_series = etf_series.append(chunk_etf_series)
+                etf_series = pd.concat([etf_series, chunk_etf_series])
                 self._get_batch_from_csv(batch_size)
                 self._rewind_etf_trick(data_df['w'], etf_series)  # Rewind etf series one step back
                 data_df = self.generate_trick_components(cache)  # Update data_df for ETF trick calculation

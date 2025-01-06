@@ -72,11 +72,11 @@ def _parallel_build_estimators(n_estimators, ensemble, X, y, ind_mat, sample_wei
     max_features = ensemble._max_features
     max_samples = ensemble._max_samples
     bootstrap_features = ensemble.bootstrap_features
-    support_sample_weight = has_fit_parameter(ensemble.base_estimator_,
+    support_sample_weight = has_fit_parameter(ensemble.estimator_,
                                               "sample_weight")
 
     if not support_sample_weight and sample_weight is not None:
-        raise ValueError("The base estimator doesn't support sample weight")
+        raise ValueError("The estimator doesn't support sample weight")
 
     # Build estimators
     estimators = []
@@ -131,7 +131,7 @@ class SequentiallyBootstrappedBaseBagging(BaseBagging, metaclass=ABCMeta):
     def __init__(self,
                  samples_info_sets,
                  price_bars,
-                 base_estimator=None,
+                 estimator=None,
                  n_estimators=10,
                  max_samples=1.0,
                  max_features=1.0,
@@ -142,7 +142,7 @@ class SequentiallyBootstrappedBaseBagging(BaseBagging, metaclass=ABCMeta):
                  random_state=None,
                  verbose=0):
         super().__init__(
-            base_estimator=base_estimator,
+            estimator=estimator,
             n_estimators=n_estimators,
             bootstrap=True,
             max_samples=max_samples,
@@ -171,13 +171,13 @@ class SequentiallyBootstrappedBaseBagging(BaseBagging, metaclass=ABCMeta):
         ----------
         X : (array-like, sparse matrix) of shape = [n_samples, n_features]
             The training input samples. Sparse matrices are accepted only if
-            they are supported by the base estimator.
+            they are supported by the estimator.
         y : (array-like), shape = [n_samples]
             The target values (class labels in classification, real numbers in
             regression).
         sample_weight : (array-like), shape = [n_samples] or None
             Sample weights. If None, then samples are equally weighted.
-            Note that this is supported only if the base estimator supports
+            Note that this is supported only if the estimator supports
             sample weighting.
         Returns
         -------
@@ -192,18 +192,18 @@ class SequentiallyBootstrappedBaseBagging(BaseBagging, metaclass=ABCMeta):
         ----------
         X : (array-like, sparse matrix) of shape = [n_samples, n_features]
             The training input samples. Sparse matrices are accepted only if
-            they are supported by the base estimator.
+            they are supported by the estimator.
         y : (array-like), shape = [n_samples]
             The target values (class labels in classification, real numbers in
             regression).
         max_samples : (int or float), optional (default=None)
             Argument to use instead of self.max_samples.
         max_depth : (int), optional (default=None)
-            Override value used when constructing base estimator. Only
-            supported if the base estimator has a max_depth parameter.
+            Override value used when constructing estimator. Only
+            supported if the estimator has a max_depth parameter.
         sample_weight : (array-like), shape = [n_samples] or None
             Sample weights. If None, then samples are equally weighted.
-            Note that this is supported only if the base estimator supports
+            Note that this is supported only if the estimator supports
             sample weighting.
         Returns
         -------
@@ -338,16 +338,16 @@ class SequentiallyBootstrappedBaggingClassifier(SequentiallyBootstrappedBaseBagg
         *samples_info_sets.value*: Time when the information extraction ended.
     :param price_bars: (pd.DataFrame)
         Price bars used in samples_info_sets generation
-    :param base_estimator: (object or None), optional (default=None)
-        The base estimator to fit on random subsets of the dataset.
-        If None, then the base estimator is a decision tree.
+    :param estimator: (object or None), optional (default=None)
+        The estimator to fit on random subsets of the dataset.
+        If None, then the estimator is a decision tree.
     :param n_estimators: (int), optional (default=10)
-        The number of base estimators in the ensemble.
+        The number of estimators in the ensemble.
     :param max_samples: (int or float), optional (default=1.0)
-        The number of samples to draw from X to train each base estimator.
+        The number of samples to draw from X to train each estimator.
         If int, then draw `max_samples` samples. If float, then draw `max_samples * X.shape[0]` samples.
     :param max_features: (int or float), optional (default=1.0)
-        The number of features to draw from X to train each base estimator.
+        The number of features to draw from X to train each estimator.
         If int, then draw `max_features` features. If float, then draw `max_features * X.shape[1]` features.
     :param bootstrap_features: (bool), optional (default=False)
         Whether features are drawn with replacement.
@@ -370,15 +370,15 @@ class SequentiallyBootstrappedBaggingClassifier(SequentiallyBootstrappedBaseBagg
     :param verbose: (int), optional (default=0)
         Controls the verbosity when fitting and predicting.
 
-    :ivar base_estimator_: (estimator)
-        The base estimator from which the ensemble is grown.
+    :ivar estimator_: (estimator)
+        The estimator from which the ensemble is grown.
     :ivar estimators_: (list of estimators)
-        The collection of fitted base estimators.
+        The collection of fitted estimators.
     :ivar estimators_samples_: (list of arrays)
-        The subset of drawn samples (i.e., the in-bag samples) for each base
+        The subset of drawn samples (i.e., the in-bag samples) for each
         estimator. Each subset is defined by an array of the indices selected.
     :ivar estimators_features_: (list of arrays)
-        The subset of drawn features for each base estimator.
+        The subset of drawn features for each estimator.
     :ivar classes_: (array) of shape = [n_classes]
         The classes labels.
     :ivar n_classes_: (int or list)
@@ -395,7 +395,7 @@ class SequentiallyBootstrappedBaggingClassifier(SequentiallyBootstrappedBaseBagg
     def __init__(self,
                  samples_info_sets,
                  price_bars,
-                 base_estimator=None,
+                 estimator=None,
                  n_estimators=10,
                  max_samples=1.0,
                  max_features=1.0,
@@ -408,7 +408,7 @@ class SequentiallyBootstrappedBaggingClassifier(SequentiallyBootstrappedBaseBagg
         super().__init__(
             samples_info_sets=samples_info_sets,
             price_bars=price_bars,
-            base_estimator=base_estimator,
+            estimator=estimator,
             n_estimators=n_estimators,
             max_samples=max_samples,
             max_features=max_features,
@@ -420,9 +420,9 @@ class SequentiallyBootstrappedBaggingClassifier(SequentiallyBootstrappedBaseBagg
             verbose=verbose)
 
     def _validate_estimator(self):
-        """Check the estimator and set the base_estimator_ attribute."""
+        """Check the estimator and set the estimator_ attribute."""
         super(BaggingClassifier, self)._validate_estimator(
-            default=DecisionTreeClassifier())
+            default=DecisionTreeClassifier(), estimator=self.estimator)
 
     def _set_oob_score(self, X, y):
         n_samples = y.shape[0]
@@ -479,15 +479,15 @@ class SequentiallyBootstrappedBaggingRegressor(SequentiallyBootstrappedBaseBaggi
 
     :param price_bars: (pd.DataFrame)
         Price bars used in samples_info_sets generation
-    :param base_estimator: (object or None), optional (default=None)
-        The base estimator to fit on random subsets of the dataset. If None, then the base estimator is a decision tree.
+    :param estimator: (object or None), optional (default=None)
+        The estimator to fit on random subsets of the dataset. If None, then the estimator is a decision tree.
     :param n_estimators: (int), optional (default=10)
-        The number of base estimators in the ensemble.
+        The number of estimators in the ensemble.
     :param max_samples: (int or float), optional (default=1.0)
-        The number of samples to draw from X to train each base estimator.
+        The number of samples to draw from X to train each estimator.
         If int, then draw `max_samples` samples. If float, then draw `max_samples * X.shape[0]` samples.
     :param max_features: (int or float), optional (default=1.0)
-        The number of features to draw from X to train each base estimator.
+        The number of features to draw from X to train each estimator.
         If int, then draw `max_features` features. If float, then draw `max_features * X.shape[1]` features.
     :param bootstrap_features: (bool), optional (default=False)
         Whether features are drawn with replacement.
@@ -513,10 +513,10 @@ class SequentiallyBootstrappedBaggingRegressor(SequentiallyBootstrappedBaseBaggi
     :ivar estimators_: (list) of estimators
         The collection of fitted sub-estimators.
     :ivar estimators_samples_: (list) of arrays
-        The subset of drawn samples (i.e., the in-bag samples) for each base
+        The subset of drawn samples (i.e., the in-bag samples) for each
         estimator. Each subset is defined by an array of the indices selected.
     :ivar estimators_features_: (list) of arrays
-        The subset of drawn features for each base estimator.
+        The subset of drawn features for each estimator.
     :ivar oob_score_: (float)
         Score of the training dataset obtained using an out-of-bag estimate.
     :ivar oob_prediction_: (array) of shape = [n_samples]
@@ -529,7 +529,7 @@ class SequentiallyBootstrappedBaggingRegressor(SequentiallyBootstrappedBaseBaggi
     def __init__(self,
                  samples_info_sets,
                  price_bars,
-                 base_estimator=None,
+                 estimator=None,
                  n_estimators=10,
                  max_samples=1.0,
                  max_features=1.0,
@@ -542,7 +542,7 @@ class SequentiallyBootstrappedBaggingRegressor(SequentiallyBootstrappedBaseBaggi
         super().__init__(
             samples_info_sets=samples_info_sets,
             price_bars=price_bars,
-            base_estimator=base_estimator,
+            estimator=estimator,
             n_estimators=n_estimators,
             max_samples=max_samples,
             max_features=max_features,
@@ -554,9 +554,9 @@ class SequentiallyBootstrappedBaggingRegressor(SequentiallyBootstrappedBaseBaggi
             verbose=verbose)
 
     def _validate_estimator(self):
-        """Check the estimator and set the base_estimator_ attribute."""
+        """Check the estimator and set the estimator_ attribute."""
         super(BaggingRegressor, self)._validate_estimator(
-            default=DecisionTreeRegressor())
+            default=DecisionTreeRegressor(), estimator=self.estimator)
 
     def _set_oob_score(self, X, y):
         n_samples = y.shape[0]

@@ -33,7 +33,7 @@ class TestFeatureImportance(unittest.TestCase):
         self.clf_base = RandomForestClassifier(n_estimators=1, criterion='entropy', bootstrap=False,
                                                class_weight='balanced_subsample')
 
-        self.bag_clf = BaggingClassifier(base_estimator=self.clf_base, max_features=1.0, n_estimators=100,
+        self.bag_clf = BaggingClassifier(estimator=self.clf_base, max_features=1.0, n_estimators=100,
                                          oob_score=True, random_state=1)
         self.fit_clf = self.bag_clf.fit(self.X, self.y)
         self.cv_gen = KFold(n_splits=3)

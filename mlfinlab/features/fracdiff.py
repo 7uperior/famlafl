@@ -284,7 +284,7 @@ def frac_diff_ffd(series: pd.DataFrame, diff_amt: float, thresh: float = 1e-5) -
     """
     return FractionalDifferentiation.frac_diff_ffd(series, diff_amt, thresh)
 
-def plot_min_ffd(series: pd.DataFrame) -> plt.AxesSubplot:
+def plot_min_ffd(series: pd.DataFrame) -> plt.Axes:
     """
     Advances in Financial Machine Learning, Chapter 5, section 5.6, page 85.
 

@@ -28,7 +28,7 @@ class TestModelFingerprint(unittest.TestCase):
         self.y = pd.Series(self.y[:100])
 
         self.reg_rf = RandomForestRegressor(n_estimators=10, random_state=42)
-        self.reg_linear = LinearRegression(fit_intercept=True, normalize=False)
+        self.reg_linear = LinearRegression(fit_intercept=True)
         self.reg_rf.fit(self.X, self.y)
         self.reg_linear.fit(self.X, self.y)
 

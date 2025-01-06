@@ -6,27 +6,25 @@ https://towardsdatascience.com/financial-machine-learning-part-0-bars-745897d4e4
 
 # Imports
 import numpy as np
-from numba import jit
-from numba import float64
-from numba import int64
+from numba import jit, float64, int64
 
 
-@jit((float64[:], int64), nopython=False, nogil=True)
-def ewma(arr_in, window):  # pragma: no cover
+@jit(nopython=True)
+def ewma(arr_in: np.ndarray, window: int) -> np.ndarray:  # pragma: no cover
     """
     Exponentially weighted moving average specified by a decay ``window`` to provide better adjustments for
     small windows via:
         y[t] = (x[t] + (1-a)*x[t-1] + (1-a)^2*x[t-2] + ... + (1-a)^n*x[t-n]) /
                (1 + (1-a) + (1-a)^2 + ... + (1-a)^n).
 
-    :param arr_in: (np.ndarray), (float64) A single dimensional numpy array
-    :param window: (int64) The decay window, or 'span'
+    :param arr_in: (np.ndarray) A single dimensional numpy array
+    :param window: (int) The decay window
     :return: (np.ndarray) The EWMA vector, same length / shape as ``arr_in``
     """
     arr_length = arr_in.shape[0]
-    ewma_arr = np.empty(arr_length, dtype=float64)
-    alpha = 2 / (window + 1)
-    weight = 1
+    ewma_arr = np.empty(arr_length, dtype=np.float64)
+    alpha = 2.0 / (window + 1)
+    weight = 1.0
     ewma_old = arr_in[0]
     ewma_arr[0] = ewma_old
     for i in range(1, arr_length):

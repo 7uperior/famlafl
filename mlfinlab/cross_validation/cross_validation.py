@@ -30,7 +30,7 @@ def ml_get_train_times(samples_info_sets: pd.Series, test_times: pd.Series) -> p
     :return: (pd.Series) Training set
     """
     train = samples_info_sets.copy(deep=True)
-    for start_ix, end_ix in test_times.iteritems():
+    for start_ix, end_ix in test_times.items():
         df0 = train[(start_ix <= train.index) & (train.index <= end_ix)].index  # Train starts within test
         df1 = train[(start_ix <= train) & (train <= end_ix)].index  # Train ends within test
         df2 = train[(train.index <= start_ix) & (end_ix <= train)].index  # Train envelops test
@@ -85,7 +85,7 @@ class PurgedKFold(KFold):
         indices: np.ndarray = np.arange(X.shape[0])
         embargo: int = int(X.shape[0] * self.pct_embargo)
 
-        test_ranges: [(int, int)] = [(ix[0], ix[-1] + 1) for ix in np.array_split(np.arange(X.shape[0]), self.n_splits)]
+        test_ranges: list[tuple[int, int]] = [(ix[0], ix[-1] + 1) for ix in np.array_split(np.arange(X.shape[0]), self.n_splits)]
         for start_ix, end_ix in test_ranges:
             test_indices = indices[start_ix:end_ix]
 
@@ -155,7 +155,8 @@ def ml_cross_val_score(
         fit = classifier.fit(X=X.iloc[train, :], y=y.iloc[train], sample_weight=sample_weight_train[train])
         if scoring == log_loss:
             prob = fit.predict_proba(X.iloc[test, :])
-            score = -1 * scoring(y.iloc[test], prob, sample_weight=sample_weight_score[test], labels=classifier.classes_)
+            # Negate log_loss since sklearn metrics are optimized for higher values
+            score = -scoring(y.iloc[test], prob, sample_weight=sample_weight_score[test], labels=classifier.classes_)
         else:
             pred = fit.predict(X.iloc[test, :])
             score = scoring(y.iloc[test], pred, sample_weight=sample_weight_score[test])
