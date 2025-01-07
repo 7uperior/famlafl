@@ -32,6 +32,7 @@ dvc = "^3.56.0"
 dvc-s3 = "^3.2.0"
 shap = "^0.46.0"
 aiofiles = "^24.1.0"
+pytorch-lightning = "^2.4.0"
 mlfinlab = {path = "mlfinlab"}
 
 
