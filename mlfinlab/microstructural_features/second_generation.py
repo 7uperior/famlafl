@@ -22,7 +22,7 @@ def get_bar_based_kyle_lambda(close: pd.Series, volume: pd.Series, window: int =
     """
     close_diff = close.diff()
     close_diff_sign = close_diff.apply(np.sign)
-    close_diff_sign.replace(0, method='pad', inplace=True)  # Replace 0 values with previous
+    close_diff_sign = close_diff_sign.replace(0, np.nan).ffill()  # Replace 0 values with previous using forward fill
     volume_mult_trade_signs = volume * close_diff_sign  # bt * Vt
     return (close_diff / volume_mult_trade_signs).rolling(window=window).mean()
 
@@ -54,7 +54,8 @@ def get_bar_based_hasbrouck_lambda(close: pd.Series, dollar_volume: pd.Series, w
     :return: (pd.Series) Hasbrouck lambda
     """
     log_ret = np.log(close / close.shift(1))
-    log_ret_sign = log_ret.apply(np.sign).replace(0, method='pad')
+    log_ret_sign = log_ret.apply(np.sign)
+    log_ret_sign = log_ret_sign.replace(0, np.nan).ffill() # Forward fill after replacing zeros
 
     signed_dollar_volume_sqrt = log_ret_sign * np.sqrt(dollar_volume)
     return (log_ret / signed_dollar_volume_sqrt).rolling(window=window).mean()

@@ -35,6 +35,7 @@ scipy = "*"
 statsmodels = "*"
 matplotlib = "*"
 cvxpy = "*"
+tqdm = "^4.67.1"
 
 [tool.poetry.group.dev.dependencies]
 codecov = "*"
@@ -42,7 +43,6 @@ coverage = "*"
 pylint = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
-pytest = "*"
 pytest-cov = "*"
 
 [tool.poetry.scripts]

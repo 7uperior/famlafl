@@ -299,6 +299,5 @@ class MicrostructuralFeaturesGenerator:
 
         try:
             pd.to_datetime(test_batch.iloc[0, 0])
-        except ValueError:
-            print('csv file, column 0, not a date time format:',
-                  test_batch.iloc[0, 0])
+        except ValueError as e:
+            raise ValueError(f'csv file, column 0, not a date time format: {test_batch.iloc[0, 0]}') from e

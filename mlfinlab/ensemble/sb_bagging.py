@@ -142,7 +142,7 @@ class SequentiallyBootstrappedBaseBagging(BaseBagging, metaclass=ABCMeta):
                  random_state=None,
                  verbose=0):
         super().__init__(
-            estimator=estimator,
+            base_estimator=estimator,  # Changed from estimator to base_estimator
             n_estimators=n_estimators,
             bootstrap=True,
             max_samples=max_samples,

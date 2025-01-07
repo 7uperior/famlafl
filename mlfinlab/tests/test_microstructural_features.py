@@ -53,20 +53,20 @@ class TestMicrostructuralFeatures(unittest.TestCase):
         # Roll measure/impact assertions
         self.assertAlmostEqual(roll_measure.max(), 7.1584, delta=1e-4)
         self.assertAlmostEqual(roll_measure.mean(), 2.341, delta=1e-3)
-        self.assertAlmostEqual(roll_measure[25], 1.176, delta=1e-3)  # Test some random value
+        self.assertAlmostEqual(roll_measure.iloc[25], 1.176, delta=1e-3)  # Test specific position using iloc
 
         self.assertAlmostEqual(roll_impact.max(), 1.022e-7, delta=1e-7)
         self.assertAlmostEqual(roll_impact.mean(), 3.3445e-8, delta=1e-7)
-        self.assertAlmostEqual(roll_impact[25], 1.6807e-8, delta=1e-4)
+        self.assertAlmostEqual(roll_impact.iloc[25], 1.6807e-8, delta=1e-4)  # Use iloc for positional indexing
 
         # Test Corwin-Schultz
         self.assertAlmostEqual(corwin_schultz.max(), 0.01652, delta=1e-4)
         self.assertAlmostEqual(corwin_schultz.mean(), 0.00151602, delta=1e-4)
-        self.assertAlmostEqual(corwin_schultz[25], 0.00139617, delta=1e-4)
+        self.assertAlmostEqual(corwin_schultz.iloc[25], 0.00139617, delta=1e-4)  # Use iloc for positional indexing
 
         self.assertAlmostEqual(bekker_parkinson.max(), 0.018773, delta=1e-4)
         self.assertAlmostEqual(bekker_parkinson.mean(), 0.001456, delta=1e-4)
-        self.assertAlmostEqual(bekker_parkinson[25], 0.000517, delta=1e-4)
+        self.assertAlmostEqual(bekker_parkinson.iloc[25], 0.000517, delta=1e-4)  # Use iloc for positional indexing
 
     def test_second_generation_intra_bar(self):
         """
@@ -84,17 +84,17 @@ class TestMicrostructuralFeatures(unittest.TestCase):
         # Test Kyle Lambda
         self.assertAlmostEqual(kyle_lambda.max(), 0.000163423, delta=1e-6)
         self.assertAlmostEqual(kyle_lambda.mean(), 7.02e-5, delta=1e-6)
-        self.assertAlmostEqual(kyle_lambda[25], 7.76e-5, delta=1e-6)  # Test some random value
+        self.assertAlmostEqual(kyle_lambda.iloc[25], 7.76e-5, delta=1e-6)  # Test specific position using iloc
 
         # Test Amihud Lambda
         self.assertAlmostEqual(amihud_lambda.max(), 4.057838e-11, delta=1e-13)
         self.assertAlmostEqual(amihud_lambda.mean(), 1.7213e-11, delta=1e-13)
-        self.assertAlmostEqual(amihud_lambda[25], 1.8439e-11, delta=1e-13)
+        self.assertAlmostEqual(amihud_lambda.iloc[25], 1.8439e-11, delta=1e-13)  # Use iloc for positional indexing
 
         # Test Hasbrouck lambda
         self.assertAlmostEqual(hasbrouck_lambda.max(), 3.39527e-7, delta=1e-10)
         self.assertAlmostEqual(hasbrouck_lambda.mean(), 1.44037e-7, delta=1e-10)
-        self.assertAlmostEqual(hasbrouck_lambda[25], 1.5433e-7, delta=1e-10)
+        self.assertAlmostEqual(hasbrouck_lambda.iloc[25], 1.5433e-7, delta=1e-10)  # Use iloc for positional indexing
 
     def test_third_generation(self):
         """
@@ -109,11 +109,11 @@ class TestMicrostructuralFeatures(unittest.TestCase):
 
         self.assertAlmostEqual(vpin_1.max(), 0.999, delta=1e-3)
         self.assertAlmostEqual(vpin_1.mean(), 0.501, delta=1e-3)
-        self.assertAlmostEqual(vpin_1[25], 0.554, delta=1e-3)
+        self.assertAlmostEqual(vpin_1.iloc[25], 0.554, delta=1e-3)  # Use iloc for positional indexing
 
         self.assertAlmostEqual(vpin_20.max(), 0.6811, delta=1e-3)
         self.assertAlmostEqual(vpin_20.mean(), 0.500, delta=1e-3)
-        self.assertAlmostEqual(vpin_20[45], 0.4638, delta=1e-3)
+        self.assertAlmostEqual(vpin_20.iloc[45], 0.4638, delta=1e-3)  # Use iloc for positional indexing
 
     def test_tick_rule_encoding(self):
         """
@@ -167,28 +167,47 @@ class TestMicrostructuralFeatures(unittest.TestCase):
     def test_csv_format(self):
         """
         Asserts that the csv data being passed is of the correct format.
+        Tests various invalid input scenarios including:
+        - Invalid date formats
+        - Wrong data types for price and volume
+        - Incorrect number of columns
+        - Empty dataframes
+        - Single column dataframes
         """
-        wrong_date = ['2019-41-30', 200.00, np.int64(5)]
-        wrong_price = ['2019-01-30', 'asd', np.int64(5)]
-        wrong_volume = ['2019-01-30', 200.00, '1.5']
-        too_many_cols = ['2019-01-30', 200.00, np.int64(5), 'Limit order', 'B23']
+        # Test invalid date formats
+        wrong_date = ['2019-41-30', 200.00, 5]  # Invalid month
+        invalid_date = ['not-a-date', 200.00, 5]  # Non-date string
+        wrong_price = ['2019-01-30', 'asd', 5]  # Non-float price
+        wrong_volume = ['2019-01-30', 200.00, '1.5']  # String volume
+        too_many_cols = ['2019-01-30', 200.00, 5, 'Limit order', 'B23']  # Extra columns
+        empty_df = pd.DataFrame()  # Empty dataframe
+        single_col = pd.DataFrame(['2019-01-30'])  # Single column dataframe
 
-        # pylint: disable=protected-access
-        with self.assertWarns(DeprecationWarning):
-            self.assertRaises(ValueError,
-                              MicrostructuralFeaturesGenerator._assert_csv(pd.DataFrame(wrong_date).T))
-        # pylint: disable=protected-access
-        self.assertRaises(AssertionError,
-                          MicrostructuralFeaturesGenerator._assert_csv,
-                          pd.DataFrame(too_many_cols).T)
-        # pylint: disable=protected-access
-        self.assertRaises(AssertionError,
-                          MicrostructuralFeaturesGenerator._assert_csv,
-                          pd.DataFrame(wrong_price).T)
-        # pylint: disable=protected-access
-        self.assertRaises(AssertionError,
-                          MicrostructuralFeaturesGenerator._assert_csv,
-                          pd.DataFrame(wrong_volume).T)
+        # Test various invalid input scenarios
+        with self.assertRaises(ValueError):
+            MicrostructuralFeaturesGenerator._assert_csv(pd.DataFrame(wrong_date).T)
+        
+        with self.assertRaises(ValueError):
+            MicrostructuralFeaturesGenerator._assert_csv(pd.DataFrame(invalid_date).T)
+
+        with self.assertRaises(AssertionError):
+            MicrostructuralFeaturesGenerator._assert_csv(pd.DataFrame(too_many_cols).T)
+
+        with self.assertRaises(AssertionError):
+            MicrostructuralFeaturesGenerator._assert_csv(pd.DataFrame(wrong_price).T)
+
+        with self.assertRaises(AssertionError):
+            MicrostructuralFeaturesGenerator._assert_csv(pd.DataFrame(wrong_volume).T)
+
+        with self.assertRaises(AssertionError):
+            MicrostructuralFeaturesGenerator._assert_csv(empty_df)
+
+        with self.assertRaises(AssertionError):
+            MicrostructuralFeaturesGenerator._assert_csv(single_col)
+
+        # Test valid input
+        valid_data = ['2019-01-30', 200.00, 5]
+        MicrostructuralFeaturesGenerator._assert_csv(pd.DataFrame(valid_data).T)
 
     def test_feature_generator_function(self):
         """
@@ -285,54 +304,54 @@ class TestMicrostructuralFeatures(unittest.TestCase):
         # Avg tick size
         self.assertAlmostEqual(features.avg_tick_size.max(), 8.0, delta=1e-1)
         self.assertAlmostEqual(features.avg_tick_size.mean(), 3.1931, delta=1e-4)
-        self.assertAlmostEqual(features.avg_tick_size[3], 1.6153, delta=1e-3)
+        self.assertAlmostEqual(features.avg_tick_size.iloc[3], 1.6153, delta=1e-3)  # Use iloc for positional indexing
 
         # Tick rule sum
         self.assertAlmostEqual(features.tick_rule_sum.max(), 7.0, delta=1e-1)
         self.assertAlmostEqual(features.tick_rule_sum.mean(), -3.4, delta=1e-4)
-        self.assertAlmostEqual(features.tick_rule_sum[3], -11.0, delta=1e-3)
+        self.assertAlmostEqual(features.tick_rule_sum.iloc[3], -11.0, delta=1e-3)  # Use iloc for positional indexing
 
         # VWAP
         self.assertAlmostEqual(features.vwap.max(), 1311.663, delta=1e-1)
         self.assertAlmostEqual(features.vwap.mean(), 1304.94542, delta=1e-4)
-        self.assertAlmostEqual(features.vwap[3], 1304.5119, delta=1e-3)
+        self.assertAlmostEqual(features.vwap.iloc[3], 1304.5119, delta=1e-3)  # Use iloc for positional indexing
 
         # Kyle lambda
         self.assertAlmostEqual(features.kyle_lambda.max(), 197.958, delta=1e-1)
         self.assertAlmostEqual(features.kyle_lambda.mean(), 23.13859, delta=1e-4)
-        self.assertAlmostEqual(features.kyle_lambda[3], 0.007936, delta=1e-3)
+        self.assertAlmostEqual(features.kyle_lambda.iloc[3], 0.007936, delta=1e-3)  # Use iloc for positional indexing
 
         # Amihud lambda
         self.assertAlmostEqual(features.amihud_lambda.max(), 8.291e-5, delta=1e-7)
         self.assertAlmostEqual(features.amihud_lambda.mean(), 1.001e-5, delta=1e-8)
-        self.assertAlmostEqual(features.amihud_lambda[3], 4.663786e-9, delta=1e-11)
+        self.assertAlmostEqual(features.amihud_lambda.iloc[3], 4.663786e-9, delta=1e-11)  # Use iloc for positional indexing
 
         # Hasbrouck lambda
         self.assertAlmostEqual(features.hasbrouck_lambda.max(), 0.0025621, delta=1e-5)
         self.assertAlmostEqual(features.hasbrouck_lambda.mean(), 0.00018253, delta=1e-5)
-        self.assertAlmostEqual(features.hasbrouck_lambda[3], 2.42e-11, delta=1e-13)
+        self.assertAlmostEqual(features.hasbrouck_lambda.iloc[3], 2.42e-11, delta=1e-13)  # Use iloc for positional indexing
 
         # Tick rule entropy shannon
         self.assertAlmostEqual(features.tick_rule_entropy_shannon.max(), 1.52192, delta=1e-4)
         self.assertAlmostEqual(features.tick_rule_entropy_shannon.mean(), 0.499, delta=1e-4)
-        self.assertAlmostEqual(features.tick_rule_entropy_shannon[3], 0.39124, delta=1e-4)
+        self.assertAlmostEqual(features.tick_rule_entropy_shannon.iloc[3], 0.39124, delta=1e-4)  # Use iloc for positional indexing
 
         # Volume entropy plug-in
         self.assertAlmostEqual(features.volume_entropy_plug_in.max(), 1.92192, delta=1e-4)
         self.assertAlmostEqual(features.volume_entropy_plug_in.mean(), 1.052201, delta=1e-5)
-        self.assertAlmostEqual(features.volume_entropy_plug_in[3], 0.41381, delta=1e-4)
+        self.assertAlmostEqual(features.volume_entropy_plug_in.iloc[3], 0.41381, delta=1e-4)  # Use iloc for positional indexing
 
         # Volume entropy Lempel-Ziv
         self.assertAlmostEqual(features.volume_entropy_lempel_ziv.max(), 1.0, delta=1e-4)
         self.assertAlmostEqual(features.volume_entropy_lempel_ziv.mean(), 0.5904612, delta=1e-4)
-        self.assertAlmostEqual(features.volume_entropy_lempel_ziv[3], 0.46153, delta=1e-4)
+        self.assertAlmostEqual(features.volume_entropy_lempel_ziv.iloc[3], 0.46153, delta=1e-4)  # Use iloc for positional indexing
 
         # Pct entropy Lempel-Ziv
         self.assertAlmostEqual(features.pct_entropy_lempel_ziv.max(), 0.8, delta=1e-4)
         self.assertAlmostEqual(features.pct_entropy_lempel_ziv.mean(), 0.56194, delta=1e-5)
-        self.assertAlmostEqual(features.pct_entropy_lempel_ziv[3], 0.46153, delta=1e-5)
+        self.assertAlmostEqual(features.pct_entropy_lempel_ziv.iloc[3], 0.46153, delta=1e-5)  # Use iloc for positional indexing
 
         # Pct entropy Konto
         self.assertAlmostEqual(features.pct_entropy_konto.max(), 1.361, delta=1e-4)
         self.assertAlmostEqual(features.pct_entropy_konto.mean(), 0.83039791, delta=1e-5)
-        self.assertAlmostEqual(features.pct_entropy_konto[3], 1.067022, delta=1e-5)
+        self.assertAlmostEqual(features.pct_entropy_konto.iloc[3], 1.067022, delta=1e-5)  # Use iloc for positional indexing
