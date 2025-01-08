@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "famlafl"
-version = "0.1.0"
+version = "0.1.8"
 description = "FAMLAFL Aren’t Machine Learning And Financial Laboratory"
 authors = ["Vadim Surin <vdmsurin@gmail.com>"]
 license = "Proprietary"
@@ -26,7 +26,7 @@ repository = "https://github.com/7uperior/famlafl"
 
 
 [tool.poetry.dependencies]
-python = ">=3.12"
+python = ">=3.11"
 pandas = "*"
 numpy = "*"
 numba = "*"
