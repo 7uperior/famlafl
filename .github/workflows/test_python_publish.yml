@@ -32,7 +32,11 @@ jobs:
 
 
   pypi-publish:
-    ...
+    runs-on: ubuntu-latest
+    needs: [release-build]
+    strategy:
+      matrix:
+        python-version: ["3.12"]
     steps:
       # 1) Download the artifact so dist/ actually exists
       - name: Download artifact
