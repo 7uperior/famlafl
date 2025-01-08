@@ -20,6 +20,10 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Office/Business :: Financial :: Investment"
 ]
+homepage = "https://github.com/7uperior/famlafl"
+repository = "https://github.com/7uperior/famlafl"
+
+
 
 [tool.poetry.dependencies]
 python = ">=3.12"

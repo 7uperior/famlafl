@@ -34,7 +34,7 @@ desktop.ini
 
 # Python tools
 coverage.xml
-.coverage
+.coverage/
 htmlcov/
 .mypy_cache/
 .pytest_cache/
@@ -51,7 +51,7 @@ ruff_cache/
 *.code-workspace
 
 # docs
-/docs
+docs/
 
 # Other
 .env
