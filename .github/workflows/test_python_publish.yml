@@ -3,7 +3,10 @@ name: Test Python Publish
 on:
   push:
     branches: [main]
-
+    
+permissions:
+  contents: read
+  
 jobs:
   release-build:
     runs-on: ubuntu-latest
