@@ -34,7 +34,7 @@ desktop.ini
 
 # Python tools
 coverage.xml
-.coverage/
+.coverage
 htmlcov/
 .mypy_cache/
 .pytest_cache/

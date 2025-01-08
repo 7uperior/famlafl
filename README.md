@@ -48,7 +48,7 @@ famlafl/
 poetry run pytest
 
 # Run tests with coverage
-poetry run pytest --cov=famlafl
+poetry run pytest --cov=famlafl --cov-report=html --cov-report=term
 
 # Run specific test file
 poetry run pytest famlafl/tests/test_specific_file.py
