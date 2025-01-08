@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "famlafl"
-version = "0.1.4"
+version = "0.1.5"
 description = "FAMLAFL Aren’t Machine Learning And Financial Laboratory"
 authors = ["Vadim Surin <vdmsurin@gmail.com>"]
 license = "Proprietary"
