@@ -83,12 +83,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: release-dists-${{ matrix.python-version }}
-
-
-      - name: Publish to PyPI with Poetry
-        uses: cadifyai/poetry-publish@v0.1.1
+          
+      - name: Publish package distributions to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_REGISTRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-          PYTHON_VERSION:  ${{ matrix.python-version }}
-          POETRY_VERSION: "latest"
+          repository-url: https://test.pypi.org/legacy/
+          name: release-dists-${{ matrix.python-version }}
