@@ -24,8 +24,7 @@ jobs:
         with:
           name: release-dists
           path: dist/
-      - name: List dist folder contents
-        run: ls -l dist
+
 
 
 
@@ -37,8 +36,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: release-dists
-      - name: List downloaded artifact contents
-        run: ls -l release-dists
       - name: Publish
         run: echo "Publish step here..."
 
