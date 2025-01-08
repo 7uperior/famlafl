@@ -8,8 +8,10 @@
 name: Upload Python Package
 
 on:
-  release:
-    types: [published]
+  # release:
+  #   types: [published]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -83,6 +85,10 @@ jobs:
           name: release-dists-${{ matrix.python-version }}
 
 
-      - name: Publish to PyPI
-        run: |
-          poetry publish dist/* --username __token__ --password ${{ secrets.PYPI_TOKEN }}
+      - name: Publish to PyPI with Poetry
+        uses: cadifyai/poetry-publish@v0.1.1
+        with:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_REGISTRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          PYTHON_VERSION:  ${{ matrix.python-version }}
+          POETRY_VERSION: "latest"
