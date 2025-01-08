@@ -10,48 +10,35 @@ permissions:
 jobs:
   release-build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-
+          python-version: '3.12'
       - name: Fake build
         run: |
           mkdir dist
           echo "sample" > dist/file.txt
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-dists
           path: dist/
-          
       - name: List dist folder contents
         run: ls -l dist
+
 
 
   pypi-publish:
     runs-on: ubuntu-latest
     needs: release-build
-    strategy:
-      matrix:
-        python-version: ["3.12"]
     steps:
-      # 1) Download the artifact so dist/ actually exists
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: release-dists
-
-      # 2) Now that dist/ is downloaded, you can list or use it
-      - name: List dist folder contents
-        run: ls -l dist
-
-      # 3) Any other steps, like publishing
+      - name: List downloaded artifact contents
+        run: ls -l release-dists
       - name: Publish
         run: echo "Publish step here..."
 
