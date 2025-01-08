@@ -30,23 +30,24 @@ jobs:
       - name: List dist folder contents
         run: ls -l dist
 
+
   pypi-publish:
-    runs-on: ubuntu-latest
-    needs: [release-build]
-    strategy:
-      matrix:
-        python-version: ["3.12"]
+    ...
     steps:
-      - name: List dist folder contents
-        run: ls -l dist
-        
+      # 1) Download the artifact so dist/ actually exists
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
           name: release-dists-${{ matrix.python-version }}
 
-      - name: Check files
+      # 2) Now that dist/ is downloaded, you can list or use it
+      - name: List dist folder contents
         run: ls -l dist
+
+      # 3) Any other steps, like publishing
+      - name: Publish
+        run: echo "Publish step here..."
+
 
 
 
