@@ -13,10 +13,15 @@ on:
 
 permissions:
   contents: read
+  id-token: write 
 
 jobs:
-  release-build:
+  pypi-publish:
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/famlafl
+    
     strategy:
       matrix:
         python-version: ["3.12"]
@@ -56,34 +61,7 @@ jobs:
         with:
           name: release-dists-${{ matrix.python-version }}
           path: dist/
-
-  pypi-publish:
-    runs-on: ubuntu-latest
-    needs: release-build
-    strategy:
-      matrix:
-        python-version: ["3.12"]
-    permissions:
-      id-token: write
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: latest
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: release-dists-${{ matrix.python-version }}
           
-      - name: Publish package distributions to TestPyPI
+      - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-          name: release-dists-${{ matrix.python-version }}
+
