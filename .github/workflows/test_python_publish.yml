@@ -1,0 +1,43 @@
+name: Test Python Publish
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Fake build
+        run: |
+          mkdir dist
+          echo "sample" > dist/file.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dists-${{ matrix.python-version }}
+          path: dist/
+
+  pypi-publish:
+    runs-on: ubuntu-latest
+    needs: [release-build]
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: release-dists-${{ matrix.python-version }}
+
+      - name: Check files
+        run: ls -l dist
