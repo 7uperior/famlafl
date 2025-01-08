@@ -41,12 +41,10 @@ jobs:
       - name: Generate lock file
         run: |
           poetry lock
-        # This creates or updates poetry.lock based on your pyproject.toml.
 
       - name: Install dependencies
         run: |
           poetry install --no-root
-        # Installs using the newly generated poetry.lock.
 
       # - name: Run tests
       #   run: |
@@ -56,12 +54,11 @@ jobs:
         run: |
           poetry build
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-dists-${{ matrix.python-version }}
-          path: dist/
-          
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to PyPI
+        env:
+          POETRY_USERNAME: __token__  # Use PyPI token authentication
+          POETRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          poetry publish --no-interaction --username "$POETRY_USERNAME" --password "$POETRY_PASSWORD"
+
 
