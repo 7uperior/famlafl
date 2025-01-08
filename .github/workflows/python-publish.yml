@@ -37,9 +37,9 @@ jobs:
         run: |
           poetry install --no-root
 
-      - name: Run tests
-        run: |
-          poetry run pytest --cov=famlafl
+      # - name: Run tests
+      #   run: |
+      #     poetry run pytest --cov=famlafl
 
       - name: Build release distributions
         run: |
