@@ -63,7 +63,7 @@ please visit `scipy documentation <https://docs.scipy.org/doc/scipy-0.14.0/refer
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.codependence.gnpr_distance
+.. py:currentmodule:: famlafl.codependence.gnpr_distance
 
 .. autofunction:: spearmans_rho
 
@@ -177,7 +177,7 @@ The following example shows how the above functions can be used:
 .. code-block::
 
    import pandas as pd
-   from mlfinlab.codependence import spearmans_rho, gpr_distance, gnpr_distance
+   from famlafl.codependence import spearmans_rho, gpr_distance, gnpr_distance
 
    # Getting the dataframe with time series of returns
    data = pd.read_csv('X_FILE_PATH.csv', index_col=0, parse_dates = [0])

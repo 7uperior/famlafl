@@ -17,7 +17,7 @@ Launch the terminal and run.
 
 .. code-block::
 
-   pip install mlfinlab
+   pip install famlafl
 
 -----------------------------
 
@@ -49,7 +49,7 @@ Accept all the requests to install.
 
 .. code-block::
 
-   cd Desktop/mlfinlab
+   cd Desktop/famlafl
 
 6. Install Python requirements, by running the command:
 
@@ -74,7 +74,7 @@ Windows
 
 .. code-block::
 
-   cd Desktop/mlfinlab
+   cd Desktop/famlafl
 
 7. Install Python requirements, by running the command:
 
@@ -82,6 +82,6 @@ Windows
 
    pip install -r requirements.txt
 
-.. _package repo: (https://github.com/hudson-and-thames/mlfinlab)
+.. _package repo: (https://github.com/hudson-and-thames/famlafl)
 .. _link: (https://www.anaconda.com/download/#mac)
 .. _Anaconda 3: (https://www.anaconda.com/distribution/#download-section)

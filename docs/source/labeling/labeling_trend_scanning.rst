@@ -34,8 +34,8 @@ The output of this algorithm is a DataFrame with t1 (time stamp for the farthest
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.labeling.trend_scanning
-.. automodule:: mlfinlab.labeling.trend_scanning
+.. py:currentmodule:: famlafl.labeling.trend_scanning
+.. automodule:: famlafl.labeling.trend_scanning
    :members:
 
 Example
@@ -45,7 +45,7 @@ Example
     import numpy as np
     import pandas as pd
 
-    from mlfinlab.labeling import trend_scanning_labels
+    from famlafl.labeling import trend_scanning_labels
 
     self.eem_close = pd.read_csv('./test_data/stock_prices.csv', index_col=0, parse_dates=[0])
     # In 2008, EEM had some clear trends

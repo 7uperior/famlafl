@@ -16,12 +16,12 @@ distance metrics described previously.
 
 .. note::
 
-   MlFinLab makes use of these functions in the clustered feature importance and portfolio optimization modules.
+   FAMLAFL makes use of these functions in the clustered feature importance and portfolio optimization modules.
 
 Implementation
 ==============
 
-.. py:currentmodule:: mlfinlab.codependence.codependence_matrix
+.. py:currentmodule:: famlafl.codependence.codependence_matrix
 .. autofunction:: get_dependence_matrix
 .. autofunction:: get_distance_matrix
 
@@ -32,7 +32,7 @@ Example
 .. code-block::
 
    import pandas as pd
-   from mlfinlab.codependence import get_dependence_matrix, get_distance_matrix
+   from famlafl.codependence import get_dependence_matrix, get_distance_matrix
 
     # Import dataframe of returns for assets in a portfolio
     asset_returns = pd.read_csv(DATA_PATH, index_col='Date', parse_dates=True)

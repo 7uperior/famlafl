@@ -5,7 +5,7 @@ Data Structures
 ===============
 
 When analyzing financial data, unstructured data sets, in this case tick data, are commonly transformed into a structured
-format referred to as bars, where a bar represents a row in a table. mlfinlab implements tick, volume, and dollar bars
+format referred to as bars, where a bar represents a row in a table. famlafl implements tick, volume, and dollar bars
 using traditional standard bar methods as well as the less common information driven bars.
 
 Standard Bars
@@ -75,19 +75,19 @@ technique is that information doesn't arrive to market in a chronological clock,
 
 It is for this reason that Time Bars have poor statistical properties in comparison to the other sampling techniques.
 
-.. py:currentmodule:: mlfinlab.data_structures.time_data_structures
+.. py:currentmodule:: famlafl.data_structures.time_data_structures
 .. autofunction:: get_time_bars
 
 
 Tick Bars
 *********
 
-.. py:currentmodule:: mlfinlab.data_structures.standard_data_structures
+.. py:currentmodule:: famlafl.data_structures.standard_data_structures
 .. autofunction:: get_tick_bars
 
 .. code-block::
 
-	from mlfinlab.data_structures import standard_data_structures
+	from famlafl.data_structures import standard_data_structures
 
 	# Tick Bars
 	tick = standard_data_structures.get_tick_bars('FILE_PATH', threshold=5500,
@@ -97,13 +97,13 @@ Tick Bars
 Volume Bars
 ***********
 
-.. py:currentmodule:: mlfinlab.data_structures.standard_data_structures
+.. py:currentmodule:: famlafl.data_structures.standard_data_structures
 .. autofunction:: get_volume_bars
 
 
 .. code-block::
 
-	from mlfinlab.data_structures import standard_data_structures
+	from famlafl.data_structures import standard_data_structures
 
 	# Volume Bars
 	volume = standard_data_structures.get_volume_bars('FILE_PATH', threshold=28000,
@@ -113,12 +113,12 @@ Volume Bars
 Dollar Bars
 ***********
 
-.. py:currentmodule:: mlfinlab.data_structures.standard_data_structures
+.. py:currentmodule:: famlafl.data_structures.standard_data_structures
 .. autofunction::  get_dollar_bars
 
 .. code-block::
 
-	from mlfinlab.data_structures import standard_data_structures
+	from famlafl.data_structures import standard_data_structures
 
 	# Dollar Bars
 	dollar = standard_data_structures.get_dollar_bars('FILE_PATH', threshold=70000000,
@@ -151,7 +151,7 @@ are included.
 Imbalance Bars
 **************
 
-2 types of imbalance bars are implemented in mlfinlab:
+2 types of imbalance bars are implemented in famlafl:
 
     1. Expected number of ticks, defined as EMA (book implementation)
     2. Constant number of expected number of ticks.
@@ -262,12 +262,12 @@ The reason for that is due to the fact that theta is accumulated when several ba
 reset :math:`\Rightarrow` condition is met on small number of ticks :math:`\Rightarrow` length of the next bar converges
 to 1 :math:`\Rightarrow` bar is sampled on the next consecutive tick.
 
-The logic described above is implemented in the **mlfinlab** package under ImbalanceBars
+The logic described above is implemented in the **famlafl** package under ImbalanceBars
 
 Implementation
 ==============
 
-.. py:currentmodule:: mlfinlab.data_structures.imbalance_data_structures
+.. py:currentmodule:: famlafl.data_structures.imbalance_data_structures
 .. autofunction::  get_ema_dollar_imbalance_bars
 .. autofunction:: get_ema_volume_imbalance_bars
 .. autofunction:: get_ema_tick_imbalance_bars
@@ -281,7 +281,7 @@ Example
 
 .. code-block::
 
-   from mlfinlab.data_structures import get_ema_dollar_imbalance_bars, get_const_dollar_imbalance_bars
+   from famlafl.data_structures import get_ema_dollar_imbalance_bars, get_const_dollar_imbalance_bars
 
    # EMA, Const Dollar Imbalance Bars
    dollar_imbalance_ema = get_ema_dollar_imbalance_bars('FILE_PATH', num_prev_bars=3, exp_num_ticks_init=100000,
@@ -302,7 +302,7 @@ Run bars share the same mathematical structure as imbalance bars, however, inste
 we are looking at sequences of trades in the same direction. The idea is that we are trying to detect order flow imbalance
 caused by actions such as large traders sweeping the order book or iceberg orders.
 
-2 types of run bars are implemented in mlfinlab:
+2 types of run bars are implemented in famlafl:
 
     1. Expected number of ticks, defined as EWMA (book implementation)
     2. Constant number of expected number of ticks.
@@ -310,7 +310,7 @@ caused by actions such as large traders sweeping the order book or iceberg order
 Implementation
 ==============
 
-.. py:currentmodule:: mlfinlab.data_structures.run_data_structures
+.. py:currentmodule:: famlafl.data_structures.run_data_structures
 .. autofunction:: get_ema_dollar_run_bars
 .. autofunction:: get_ema_volume_run_bars
 .. autofunction:: get_ema_tick_run_bars
@@ -323,7 +323,7 @@ Example
 
 .. code-block::
 
-   from mlfinlab.data_structures import get_ema_dollar_run_bars, get_const_dollar_run_bars
+   from famlafl.data_structures import get_ema_dollar_run_bars, get_const_dollar_run_bars
 
    # EMA, Const Dollar Imbalance Bars
    dollar_imbalance_ema = get_ema_dollar_run_bars('FILE_PATH', num_prev_bars=3, exp_num_ticks_init=100000,
@@ -399,7 +399,7 @@ For this tutorial we will assume that you need to first do some pre-processing a
 
 Initially, your instinct may be to pass an in-memory DataFrame object but the truth is when you're running the function
 in production, your raw tick data csv files will be way too large to hold in memory. We used the subset 2011 to 2019 and
-it was more than 25 gigs. It is for this reason that the mlfinlab package suggests using a file path to read the raw data
+it was more than 25 gigs. It is for this reason that the famlafl package suggests using a file path to read the raw data
 files from disk.
 
 .. code-block::

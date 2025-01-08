@@ -1,4 +1,4 @@
-.. py:currentmodule:: mlfinlab.bet_sizing.bet_sizing
+.. py:currentmodule:: famlafl.bet_sizing.bet_sizing
 
 ==========
 Bet Sizing
@@ -54,11 +54,11 @@ Additional Utility Functions For Bet Sizing
 .. autofunction:: cdf_mixture
 .. autofunction:: single_bet_size_mixed
 
-.. py:currentmodule:: mlfinlab.bet_sizing.ch10_snippets
+.. py:currentmodule:: famlafl.bet_sizing.ch10_snippets
 
 Chapter 10 Code Snippets
 ########################
-Chapter 10 of "Advances in Financial Machine Learning" contains a number of Python code snippets, many of which are used to create the top level bet sizing functions. These functions can be found in ``mlfinlab.bet_sizing.ch10_snippets.py``.
+Chapter 10 of "Advances in Financial Machine Learning" contains a number of Python code snippets, many of which are used to create the top level bet sizing functions. These functions can be found in ``famlafl.bet_sizing.ch10_snippets.py``.
 
 Snippets For Bet Sizing From Probabilities
 ******************************************

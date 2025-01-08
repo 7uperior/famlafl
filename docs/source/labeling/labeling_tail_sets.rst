@@ -96,7 +96,7 @@ The paper provides the following investment performance:
 Implementation
 ##############
 
-.. automodule:: mlfinlab.labeling.tail_sets
+.. automodule:: famlafl.labeling.tail_sets
 
     .. autoclass:: TailSetLabels
         :members:
@@ -110,7 +110,7 @@ Below is an example on how to create the positive, negative, and full matrix Tai
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.labeling import TailSetLabels
+    from famlafl.labeling import TailSetLabels
 
     # Import price data
     data = pd.read_csv('../Sample-Data/stock_prices.csv', index_col='Date', parse_dates=True)

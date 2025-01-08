@@ -71,25 +71,25 @@ Strategies can be imported by using variations of the following lines.
 .. code-block::
 
     # Import all strategies.
-    from mlfinlab.online_portfolio_selection import *
+    from famlafl.online_portfolio_selection import *
 
     # Import all benchmark strategies.
-    from mlfinlab.online_portfolio_selection.benchmarks import *
+    from famlafl.online_portfolio_selection.benchmarks import *
 
     # Import all momentum strategies.
-    from mlfinlab.online_portfolio_selection.momentum import *
+    from famlafl.online_portfolio_selection.momentum import *
 
     # Import all mean reversion strategies.
-    from mlfinlab.online_portfolio_selection.mean_reversion import *
+    from famlafl.online_portfolio_selection.mean_reversion import *
 
     # Import all pattern matching strategies.
-    from mlfinlab.online_portfolio_selection.pattern_matching import *
+    from famlafl.online_portfolio_selection.pattern_matching import *
 
     # Import a specific buy and hold strategy.
-    from mlfinlab.online_portfolio_selection import BAH
+    from famlafl.online_portfolio_selection import BAH
 
     # Import buy and hold and universal portfolio.
-    from mlfinlab.online_portfolio_selection import BAH, UP
+    from famlafl.online_portfolio_selection import BAH, UP
 
 Initialize
 ##########
@@ -135,7 +135,7 @@ Three additional options are available for the ``allocate`` method.
     # Allocate with printed progress bar.
     bah.allocate(price_data, verbose=True)
 
-.. automodule:: mlfinlab.online_portfolio_selection.base
+.. automodule:: famlafl.online_portfolio_selection.base
 
     .. automethod:: OLPS.allocate
 

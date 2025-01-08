@@ -58,9 +58,9 @@ also lag the returns to make them forward-looking. In the paper by Zhu et al., t
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.labeling.excess_over_median
+.. py:currentmodule:: famlafl.labeling.excess_over_median
 
-.. automodule:: mlfinlab.labeling.excess_over_median
+.. automodule:: famlafl.labeling.excess_over_median
    :members:
 
 Example
@@ -71,7 +71,7 @@ Below is an example on how to create labels of excess over median from real data
 
     import pandas as pd
     import yfinance as yf
-    from mlfinlab.labeling import excess_over_median
+    from famlafl.labeling import excess_over_median
 
     # Import price data
     tickers = "AAPL MSFT AMZN GOOG"

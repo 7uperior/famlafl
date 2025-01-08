@@ -71,7 +71,7 @@ visit `sklearn documentation <https://scikit-learn.org/stable/modules/generated/
 Implementation
 **************
 
-.. py:currentmodule:: mlfinlab.portfolio_optimization.risk_estimators
+.. py:currentmodule:: famlafl.portfolio_optimization.risk_estimators
 
 .. autoclass:: RiskEstimators
    :members: __init__, minimum_covariance_determinant
@@ -405,7 +405,7 @@ Example Code
 
     import pandas as pd
     import numpy as np
-    from mlfinlab.portfolio_optimization import RiskEstimators, ReturnsEstimators
+    from famlafl.portfolio_optimization import RiskEstimators, ReturnsEstimators
 
     # Import price data
     stock_returns = pd.read_csv(DATA_PATH, index_col='Date', parse_dates=True)

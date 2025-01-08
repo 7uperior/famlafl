@@ -51,8 +51,8 @@ The following shows the distribution of logarithmic daily returns on Microsoft s
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.labeling.raw_return
-.. automodule:: mlfinlab.labeling.raw_return
+.. py:currentmodule:: famlafl.labeling.raw_return
+.. automodule:: famlafl.labeling.raw_return
    :members:
 
 Example
@@ -62,7 +62,7 @@ Below is an example on how to use the raw returns labeling method.
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.labeling import raw_return
+    from famlafl.labeling import raw_return
 
     # Import price data
     data = pd.read_csv('../Sample-Data/stock_prices.csv', index_col='Date', parse_dates=True)

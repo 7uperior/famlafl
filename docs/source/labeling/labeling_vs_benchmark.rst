@@ -70,8 +70,8 @@ SPY.
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.labeling.return_vs_benchmark
-.. automodule:: mlfinlab.labeling.return_vs_benchmark
+.. py:currentmodule:: famlafl.labeling.return_vs_benchmark
+.. automodule:: famlafl.labeling.return_vs_benchmark
    :members:
 
 Example
@@ -81,7 +81,7 @@ Below is an example on how to use the return over benchmark labeling technique o
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.labeling import return_vs_benchmark
+    from famlafl.labeling import return_vs_benchmark
 
     # Import price data.
     data = pd.read_csv('../Sample-Data/stock_prices.csv', index_col='Date', parse_dates=True)

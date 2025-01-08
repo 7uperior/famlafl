@@ -1,10 +1,10 @@
-# Contributing to MlFinLab
+# Contributing to FAMLAFL
 
-First off, thank you for taking the time to contribute to the project! We welcome contributions from everyone who wants to help improve MlFinLab.
+First off, thank you for taking the time to contribute to the project! We welcome contributions from everyone who wants to help improve FAMLAFL.
 
 ## How to Contribute
 
-There are many ways you can contribute to MlFinLab:
+There are many ways you can contribute to FAMLAFL:
 
 1. **Bug Reports**: If you find a bug, please create an issue using our bug report template.
 2. **Feature Requests**: Have an idea for a new feature? Create an issue using our feature request template.
@@ -42,7 +42,7 @@ poetry run pytest
 
 2. Run code style checks
 ```bash
-poetry run pylint mlfinlab
+poetry run pylint famlafl
 ```
 
 ## Pull Request Process

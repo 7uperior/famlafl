@@ -31,7 +31,7 @@ M2N
 ###
 A class for determining the means, standard deviations, and mixture proportion of a given distribution from it's first four or five statistical moments.
 
-.. py:currentmodule:: mlfinlab.bet_sizing.ef3m
+.. py:currentmodule:: famlafl.bet_sizing.ef3m
 
 .. autoclass:: M2N
     :members:

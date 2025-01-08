@@ -14,8 +14,8 @@ training data set. That is why samples_info_sets and price bars are input parame
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.ensemble.sb_bagging
-.. automodule:: mlfinlab.ensemble.sb_bagging
+.. py:currentmodule:: famlafl.ensemble.sb_bagging
+.. automodule:: famlafl.ensemble.sb_bagging
    :members: SequentiallyBootstrappedBaggingClassifier, SequentiallyBootstrappedBaggingRegressor
 
 Example
@@ -27,7 +27,7 @@ An example of using SequentiallyBootstrappedBaggingClassifier
 
     import pandas as pd
     from sklearn.ensemble import RandomForestClassifier
-    from mlfinlab.ensemble import SequentiallyBootstrappedBaggingClassifier
+    from famlafl.ensemble import SequentiallyBootstrappedBaggingClassifier
 
     X = pd.read_csv('X_FILE_PATH', index_col=0, parse_dates = [0])
     y = pd.read_csv('y_FILE_PATH', index_col=0, parse_dates = [0])

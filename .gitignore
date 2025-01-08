@@ -34,6 +34,7 @@ desktop.ini
 
 # Python tools
 coverage.xml
+.coverage
 htmlcov/
 .mypy_cache/
 .pytest_cache/
@@ -48,6 +49,9 @@ ruff_cache/
 *.sublime-project
 *.sublime-workspace
 *.code-workspace
+
+# docs
+/docs
 
 # Other
 .env

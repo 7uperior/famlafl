@@ -79,7 +79,7 @@ Each weight in the allocation has an upper and a lower bound, which increases th
 Supported Solutions
 ###################
 
-MlFinLab's :py:mod:`CriticalLineAlgorithm` class provides the following solutions to be used out-of-the-box.
+FAMLAFL's :py:mod:`CriticalLineAlgorithm` class provides the following solutions to be used out-of-the-box.
 
 CLA Turning Points
 ******************
@@ -125,7 +125,7 @@ Note that the turning points found by ``cla_turning_points`` constitute a small 
 Implementation
 ##############
 
-.. automodule:: mlfinlab.portfolio_optimization.cla
+.. automodule:: famlafl.portfolio_optimization.cla
 
     .. autoclass:: CriticalLineAlgorithm
         :members:
@@ -167,7 +167,7 @@ Example Code
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.portfolio_optimization.cla import CriticalLineAlgorithm
+    from famlafl.portfolio_optimization.cla import CriticalLineAlgorithm
 
     # Read in data
     stock_prices = pd.read_csv('FILE_PATH', parse_dates=True, index_col='Date')

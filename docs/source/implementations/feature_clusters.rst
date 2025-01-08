@@ -44,7 +44,7 @@ Implementation
 This module creates clustered subsets of features described in the presentation slides: `Clustered Feature Importance <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3517595>`__
 by Marcos Lopez de Prado.
 
-.. py:currentmodule:: mlfinlab.clustering.feature_clusters
+.. py:currentmodule:: famlafl.clustering.feature_clusters
 
 .. autofunction:: get_feature_clusters
 
@@ -57,7 +57,7 @@ The example will generate 4 clusters by Hierarchical Clustering for given specif
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.clustering.feature_clusters import get_feature_clusters
+    from famlafl.clustering.feature_clusters import get_feature_clusters
 
     # Read the a csv file containing only features
     X = pd.read_csv('X_FILE_PATH.csv', index_col=0, parse_dates = [0])

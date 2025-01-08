@@ -6,37 +6,37 @@
 |
 
 ================================================
-Machine Learning Financial Laboratory (mlfinlab)
+Machine Learning Financial Laboratory (famlafl)
 ================================================
 
     |PyPi| |Python| |Build Status| |codecov| |pylint Score|
 
-    .. |Build Status| image:: https://travis-ci.com/hudson-and-thames/mlfinlab.svg?branch=master
-        :target: https://travis-ci.com/hudson-and-thames/mlfinlab
+    .. |Build Status| image:: https://travis-ci.com/hudson-and-thames/famlafl.svg?branch=master
+        :target: https://travis-ci.com/hudson-and-thames/famlafl
 
-    .. |codecov| image:: https://codecov.io/gh/hudson-and-thames/mlfinlab/branch/master/graph/badge.svg
-        :target: https://codecov.io/gh/hudson-and-thames/mlfinlab
+    .. |codecov| image:: https://codecov.io/gh/hudson-and-thames/famlafl/branch/master/graph/badge.svg
+        :target: https://codecov.io/gh/hudson-and-thames/famlafl
 
     .. |pylint Score| image:: https://mperlet.github.io/pybadge/badges/10.svg
 
     |Downloads|
 
-    .. |PyPi| image:: https://img.shields.io/pypi/v/mlfinlab.svg
-        :target: https://pypi.org/project/mlfinlab/
+    .. |PyPi| image:: https://img.shields.io/pypi/v/famlafl.svg
+        :target: https://pypi.org/project/famlafl/
 
-    .. |Downloads| image:: https://img.shields.io/pypi/dm/mlfinlab.svg
-        :target: https://pypi.org/project/mlfinlab/
+    .. |Downloads| image:: https://img.shields.io/pypi/dm/famlafl.svg
+        :target: https://pypi.org/project/famlafl/
 
-    .. |Python| image:: https://img.shields.io/pypi/pyversions/mlfinlab.svg
-        :target: https://pypi.org/project/mlfinlab/
+    .. |Python| image:: https://img.shields.io/pypi/pyversions/famlafl.svg
+        :target: https://pypi.org/project/famlafl/
 
-MlFinlab is a python package which helps portfolio managers and traders who want to leverage the power of machine learning
-by providing reproducible, interpretable, and easy to use tools. Adding MlFinLab to your companies pipeline is like adding
+FAMLAFL is a python package which helps portfolio managers and traders who want to leverage the power of machine learning
+by providing reproducible, interpretable, and easy to use tools. Adding FAMLAFL to your companies pipeline is like adding
 a department of PhD researchers to your team.
 
 .. code-block::
 
-   pip install mlfinlab
+   pip install famlafl
 
 
 We source all of our implementations from the most elite and peer-reviewed journals. Including publications from:
@@ -60,11 +60,11 @@ level textbooks:
    :alt: Academic Journals
    :target: https://www.pm-research.com/
 
-Praise for MlFinLab
+Praise for FAMLAFL
 ###################
 
 “Financial markets are complex systems like no other. Extracting signal from financial data requires specialized tools
-that are distinct from those used in general machine learning. The MlFinLab package compiles important algorithms
+that are distinct from those used in general machine learning. The FAMLAFL package compiles important algorithms
 that every quant should know and use.”
 
 \- `Dr. Marcos Lopez de Prado <https://www.linkedin.com/in/lopezdeprado/>`_, Co-founder and CIO at True Positive Technologies; Professor of Practice at Cornell University
@@ -83,7 +83,7 @@ Machine learning promises to change that by allowing researchers to use modern n
 techniques. Yet, applying those machine learning algorithms to model financial problems is easier said than done:
 finance is not a plug-and-play subject as it relates to machine learning.
 
-MlFinLab provides access to the latest cutting edges methods. MlFinLab is thus essential for quants who want to be
+FAMLAFL provides access to the latest cutting edges methods. FAMLAFL is thus essential for quants who want to be
 ahead of the technology rather than being replaced by it."
 
 \- `Dr. Thomas Raffinot <https://www.linkedin.com/in/thomas-raffinot-b75734b/>`_, Financial Data Scientist at ENGIE Global Markets
@@ -102,12 +102,12 @@ but want to ensure that others will invest in its long-term maintenance, you cou
 open-source the project once you've hit a certain amount of sponsorship. (Writer Tim Carmody refers to this as
 "unlocking the commons.")”
 
-`Become a Patron and keep MlFinLab Open! <https://www.patreon.com/HudsonThames>`_
+`Become a Patron and keep FAMLAFL Open! <https://www.patreon.com/HudsonThames>`_
 
 Documentation & Tutorials
 #########################
 
-We lower barriers to entry for all users by providing extensive `documentation <https://mlfinlab.readthedocs.io/en/latest/>`_
+We lower barriers to entry for all users by providing extensive `documentation <https://famlafl.readthedocs.io/en/latest/>`_
 and `tutorial notebooks <https://github.com/hudson-and-thames/research>`_, with code examples.
 
 Who is Hudson & Thames?
@@ -119,7 +119,7 @@ virtual teams, spread across the world, primarily: New York, London, and Kyiv.
 * `Website <https://hudsonthames.org/>`_
 * `Github Group <https://github.com/hudson-and-thames>`_
 * `Project Boards <https://github.com/orgs/hudson-and-thames/projects>`_
-* `Documentation <https://mlfinlab.readthedocs.io/en/latest/>`_
+* `Documentation <https://famlafl.readthedocs.io/en/latest/>`_
 
 Sponsors and Donating
 #####################
@@ -242,7 +242,7 @@ License
 
 This project is licensed under an all rights reserved licence.
 
-`LICENSE.txt <https://github.com/hudson-and-thames/mlfinlab/blob/master/LICENSE.txt>`_ file for details.
+`LICENSE.txt <https://github.com/hudson-and-thames/famlafl/blob/master/LICENSE.txt>`_ file for details.
 
 
 

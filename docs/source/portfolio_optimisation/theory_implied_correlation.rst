@@ -130,7 +130,7 @@ The TIC algorithm consists of three steps:
 
 .. tip::
 
-    * The algorithm for de-noising the correlation and the covariance matrix is implemented in the RiskEstimators class of the mlfinlab package. It is described in more detail `here <https://github.com/hudson-and-thames/research/blob/master/RiskEstimators/RiskEstimators.ipynb>`__.
+    * The algorithm for de-noising the correlation and the covariance matrix is implemented in the RiskEstimators class of the famlafl package. It is described in more detail `here <https://github.com/hudson-and-thames/research/blob/master/RiskEstimators/RiskEstimators.ipynb>`__.
 
     * This algorithm is described in more detail in the paper **Estimation of Theory-Implied Correlation Matrices** *by* Marcos Lopez de Prado `available here <https://papers.ssrn.com/abstract_id=3484152>`__.
 
@@ -156,7 +156,7 @@ From the work **Estimation of Theory-Implied Correlation Matrices**:
 Implementation
 ##############
 
-.. automodule:: mlfinlab.portfolio_optimization.tic
+.. automodule:: famlafl.portfolio_optimization.tic
 
     .. autoclass:: TIC
         :members:
@@ -169,7 +169,7 @@ Example Code
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.portfolio_optimization.tic import TIC
+    from famlafl.portfolio_optimization.tic import TIC
 
     # Reading data
     tree_classification = pd.read_csv('TREE_FILE_PATH')

@@ -68,7 +68,7 @@ Haircut Sharpe Ratio algorithm consists of the following steps:
 
 Implementation
 **************
-.. py:currentmodule:: mlfinlab.backtest_statistics.backtests
+.. py:currentmodule:: famlafl.backtest_statistics.backtests
 
 .. autoclass:: CampbellBacktesting
    :members: __init__, haircut_sharpe_ratios
@@ -80,7 +80,7 @@ An example showing how Haircut Sharpe Ratios method is used can be seen below:
 
 .. code-block::
 
-   from mlfinlab.backtests import CampbellBacktesting
+   from famlafl.backtests import CampbellBacktesting
 
    # Specify the desired number of simulations
    backtesting = CampbellBacktesting(4000)
@@ -152,7 +152,7 @@ An example showing how Profit Hurdle method is used can be seen below:
 
 .. code-block::
 
-   from mlfinlab.backtests import CampbellBacktesting
+   from famlafl.backtests import CampbellBacktesting
 
    # Specify the desired number of simulations
    backtesting = CampbellBacktesting(4000)

@@ -98,9 +98,9 @@ The following graph shows a fractionally differenced series plotted over the ori
 Implementation
 **************
 
-The following function implemented in mlfinlab can be used to derive fractionally differentiated features.
+The following function implemented in famlafl can be used to derive fractionally differentiated features.
 
-.. py:currentmodule:: mlfinlab.features.fracdiff
+.. py:currentmodule:: famlafl.features.fracdiff
 .. autofunction::  frac_diff_ffd
 
 
@@ -163,7 +163,7 @@ satisfy standard econometric assumptions."
 Implementation
 **************
 
-The following function implemented in mlfinlab can be used to achieve stationarity with maximum memory representation.
+The following function implemented in famlafl can be used to achieve stationarity with maximum memory representation.
 
 .. autofunction::  plot_min_ffd
 
@@ -179,7 +179,7 @@ minimum d value that passes the ADF test can be derived as follows:
    import numpy as np
    import pandas as pd
 
-   from mlfinlab.features.fracdiff import frac_diff_ffd, plot_min_ffd
+   from famlafl.features.fracdiff import frac_diff_ffd, plot_min_ffd
 
    # Import price data
    data = pd.read_csv('FILE_PATH')

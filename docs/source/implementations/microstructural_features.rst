@@ -28,8 +28,8 @@ quantile or sigma encoding.
 Message Encoding
 ****************
 
-.. py:currentmodule:: mlfinlab.microstructural_features.encoding
-.. automodule:: mlfinlab.microstructural_features.encoding
+.. py:currentmodule:: famlafl.microstructural_features.encoding
+.. automodule:: famlafl.microstructural_features.encoding
    :members: encode_tick_rule_array, quantile_mapping, sigma_mapping, encode_array
 
 
@@ -43,8 +43,8 @@ The various ways to estimate entropy are:
 3. Plug-In
 4. Kontoyiannis
 
-.. py:currentmodule:: mlfinlab.microstructural_features.entropy
-.. automodule:: mlfinlab.microstructural_features.entropy
+.. py:currentmodule:: famlafl.microstructural_features.entropy
+.. automodule:: famlafl.microstructural_features.entropy
    :members: get_shannon_entropy, get_lempel_ziv_entropy, get_plug_in_entropy
 
 Example
@@ -52,7 +52,7 @@ Example
 
 .. code-block::
 
-   from mlfinlab.entropy import get_shannon_entropy, get_lempel_ziv_entropy, get_plug_in_entropy
+   from famlafl.entropy import get_shannon_entropy, get_lempel_ziv_entropy, get_plug_in_entropy
 
    message = 'abbnaacdeaas'
    shannon = get_shannon_entropy(message)
@@ -67,27 +67,27 @@ When bars are generated (time, volume, imbalance, run) researcher can get inter-
 Roll Measure, Roll Impact, Corwin-Schultz spread estimator, Bekker-Parkinson volatility, Kyle/Amihud/Hasbrouck lambdas,
 and VPIN.
 
-.. py:currentmodule:: mlfinlab.microstructural_features.first_generation
-.. automodule:: mlfinlab.microstructural_features.first_generation
+.. py:currentmodule:: famlafl.microstructural_features.first_generation
+.. automodule:: famlafl.microstructural_features.first_generation
    :members: get_roll_measure, get_roll_impact, get_corwin_schultz_estimator, get_bekker_parkinson_vol
 
-.. py:currentmodule:: mlfinlab.microstructural_features.second_generation
-.. automodule:: mlfinlab.microstructural_features.second_generation
+.. py:currentmodule:: famlafl.microstructural_features.second_generation
+.. automodule:: famlafl.microstructural_features.second_generation
   :members: get_bar_based_kyle_lambda, get_bar_based_amihud_lambda, get_bar_based_hasbrouck_lambda
 
-.. py:currentmodule:: mlfinlab.microstructural_features.third_generation
-.. automodule:: mlfinlab.microstructural_features.third_generation
+.. py:currentmodule:: famlafl.microstructural_features.third_generation
+.. automodule:: famlafl.microstructural_features.third_generation
   :members: get_vpin
 
 Trade Based (Intra-Bar) Features
 ################################
 
 Some microstructural features need to be calculated from trades (tick rule/volume/percent change entropies, average
-tick size, vwap, tick rule sum, trade based lambdas). Mlfinlab has a special function which calculates features for
+tick size, vwap, tick rule sum, trade based lambdas). FAMLAFL has a special function which calculates features for
 generated bars using trade data and bar date_time index.
 
-.. py:currentmodule:: mlfinlab.microstructural_features.feature_generator
-.. automodule:: mlfinlab.microstructural_features.feature_generator
+.. py:currentmodule:: famlafl.microstructural_features.feature_generator
+.. automodule:: famlafl.microstructural_features.feature_generator
   :members: MicrostructuralFeaturesGenerator
 
 Example
@@ -97,7 +97,7 @@ Example
 
    import numpy as np
    import pandas as pd
-   from mlfinlab.microstructural_features import quantile_mapping, MicrostructuralFeaturesGenerator
+   from famlafl.microstructural_features import quantile_mapping, MicrostructuralFeaturesGenerator
 
    df_trades = pd.read_csv('TRADES_PATH', parse_dates=[0])
    df_trades = df_trades.iloc[:10000] # Take subsample to avoid look-ahead bias

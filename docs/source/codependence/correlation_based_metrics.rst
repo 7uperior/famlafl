@@ -46,7 +46,7 @@ by Michale A. Newton. It provides a great overview for readers.
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.codependence.correlation
+.. py:currentmodule:: famlafl.codependence.correlation
 
 .. autofunction:: distance_correlation
 
@@ -168,7 +168,7 @@ The following examples show how the described above correlation-based metrics ca
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.codependence import distance_correlation, angular_distance,
+    from famlafl.codependence import distance_correlation, angular_distance,
                                       absolute_angular_distance, squared_angular_distance
 
     # Import dataframe of returns for assets in a portfolio

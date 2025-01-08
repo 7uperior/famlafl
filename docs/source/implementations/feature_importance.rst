@@ -25,8 +25,8 @@ The book describes three methods to get importance scores:
 Implementation
 **************
 
-.. py:currentmodule:: mlfinlab.feature_importance.importance
-.. automodule:: mlfinlab.feature_importance.importance
+.. py:currentmodule:: famlafl.feature_importance.importance
+.. automodule:: famlafl.feature_importance.importance
    :members:
 
 Example
@@ -40,9 +40,9 @@ An example showing how to use various feature importance functions:
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.metrics import accuracy_score, log_loss
 
-    from mlfinlab.ensemble import SequentiallyBootstrappedBaggingClassifier
-    from mlfinlab.feature_importance import (mean_decrease_impurity, mean_decrease_accuracy, single_feature_importance, plot_feature_importance)
-    from mlfinlab.cross_validation import PurgedKFold, ml_cross_val_score
+    from famlafl.ensemble import SequentiallyBootstrappedBaggingClassifier
+    from famlafl.feature_importance import (mean_decrease_impurity, mean_decrease_accuracy, single_feature_importance, plot_feature_importance)
+    from famlafl.cross_validation import PurgedKFold, ml_cross_val_score
 
     X_train = pd.read_csv('X_FILE_PATH.csv', index_col=0, parse_dates=[0])
     y_train = pd.read_csv('y_FILE_PATH.csv', index_col=0, parse_dates=[0])
@@ -141,11 +141,11 @@ Example
     from sklearn.metrics import accuracy_score, log_loss
     from sklearn.model_selection._split import KFold
 
-    from mlfinlab.util.generate_dataset import get_classification_data
-    from mlfinlab.feature_importance import (mean_decrease_impurity, mean_decrease_accuracy,
+    from famlafl.util.generate_dataset import get_classification_data
+    from famlafl.feature_importance import (mean_decrease_impurity, mean_decrease_accuracy,
                                              plot_feature_importance)
-    from mlfinlab.cross_validation import  ml_cross_val_score
-    from mlfinlab.clustering.feature_clusters import get_feature_clusters
+    from famlafl.cross_validation import  ml_cross_val_score
+    from famlafl.clustering.feature_clusters import get_feature_clusters
 
     # Create Clusters
     X, y = get_classification_data(n_features=40, n_informative=5, n_redundant=30,
@@ -228,14 +228,14 @@ This module implements the algorithm described in the article.
 Implementation
 **************
 
-.. py:currentmodule:: mlfinlab.feature_importance.fingerpint
-.. autoclass:: mlfinlab.feature_importance.fingerpint.AbstractModelFingerprint
+.. py:currentmodule:: famlafl.feature_importance.fingerpint
+.. autoclass:: famlafl.feature_importance.fingerpint.AbstractModelFingerprint
    :members:
 
-.. autoclass:: mlfinlab.feature_importance.fingerpint.ClassificationModelFingerprint
+.. autoclass:: famlafl.feature_importance.fingerpint.ClassificationModelFingerprint
    :members:
 
-.. autoclass:: mlfinlab.feature_importance.fingerpint.RegressionModelFingerprint
+.. autoclass:: famlafl.feature_importance.fingerpint.RegressionModelFingerprint
    :members:
 
 Example
@@ -246,7 +246,7 @@ Example
     import pandas as pd
     from sklearn.datasets import load_boston
     from sklearn.ensemble import RandomForestRegressor
-    from mlfinlab.feature_importance import RegressionModelFingerprint
+    from famlafl.feature_importance import RegressionModelFingerprint
 
     data = load_boston() # Get a dataset
     X = pd.DataFrame(columns=data['feature_names'], data=data['data'])
@@ -299,19 +299,19 @@ algorithm is not entirely overfit. Here is the example plot of MDI feature impor
 Implementation
 **************
 
-.. py:currentmodule:: mlfinlab.feature_importance.orthogonal
-.. automodule:: mlfinlab.feature_importance.orthogonal
+.. py:currentmodule:: famlafl.feature_importance.orthogonal
+.. automodule:: famlafl.feature_importance.orthogonal
    :members: get_orthogonal_features, get_pca_rank_weighted_kendall_tau, feature_pca_analysis
 
 Example
 *******
 
-Let's see how PCA feature extraction is analysis are done using mlfinlab functions:
+Let's see how PCA feature extraction is analysis are done using famlafl functions:
 
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.feature_importance.orthogonal import (get_orthogonal_features,
+    from famlafl.feature_importance.orthogonal import (get_orthogonal_features,
                                                         feature_pca_analysis)
 
     X_train = pd.read_csv('X_FILE_PATH.csv', index_col=0, parse_dates = [0])

@@ -7,7 +7,7 @@ Returns Estimators
 
 Accurate estimation of historical asset returns is one of the most important aspects of portfolio optimisation. However, it is
 also one of the most difficult to calculate since estimated returns do not correctly reflect the true underlying
-returns of a portfolio/asset. MlFinLab's :py:mod:`ReturnsEstimators` class provides functions to estimate mean asset returns.
+returns of a portfolio/asset. FAMLAFL's :py:mod:`ReturnsEstimators` class provides functions to estimate mean asset returns.
 Currently, it is still in active development and we will keep adding new methods to it.
 
 Supported Estimators
@@ -78,7 +78,7 @@ Where :math:`R_{t}` is the return for :math:`t` -th observation, :math:`P_{t}` i
 Implementation
 ##############
 
-.. automodule:: mlfinlab.portfolio_optimization.returns_estimators
+.. automodule:: famlafl.portfolio_optimization.returns_estimators
 
     .. autoclass:: ReturnsEstimators
         :members:
@@ -92,7 +92,7 @@ Below is an example of how to use the package functions to calculate various est
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.portfolio_optimization import ReturnsEstimators
+    from famlafl.portfolio_optimization import ReturnsEstimators
 
     # Import dataframe of prices for assets in a portfolio
     asset_prices = pd.read_csv(DATA_PATH, index_col='Date', parse_dates=True)

@@ -79,7 +79,7 @@ tree and get assigned to the portfolio assets.
 Implementation
 ##############
 
-.. automodule:: mlfinlab.portfolio_optimization.hrp
+.. automodule:: famlafl.portfolio_optimization.hrp
 
     .. autoclass:: HierarchicalRiskParity
         :members:
@@ -129,7 +129,7 @@ Example Code
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.portfolio_optimization.hrp import HierarchicalRiskParity
+    from famlafl.portfolio_optimization.hrp import HierarchicalRiskParity
 
     # Read in data
     stock_prices = pd.read_csv('FILE_PATH', parse_dates=True, index_col='Date')
@@ -175,6 +175,6 @@ The following research notebooks provide a more detailed exploration of the algo
 
 .. _Chapter 16 Exercise Notebook: https://github.com/hudson-and-thames/research/blob/master/Advances%20in%20Financial%20Machine%20Learning/Machine%20Learning%20Asset%20Allocation/Chapter16.ipynb
 
-* `How to use mlfinlab's HierarchicalRiskParity class`_
+* `How to use famlafl's HierarchicalRiskParity class`_
 
-.. _How to use mlfinlab's HierarchicalRiskParity class: https://github.com/hudson-and-thames/research/blob/master/Portfolio%20Optimisation%20Tutorials/Hierarchical%20Risk%20Parity%20(HRP)/HRP%20use%20examples.ipynb
+.. _How to use famlafl's HierarchicalRiskParity class: https://github.com/hudson-and-thames/research/blob/master/Portfolio%20Optimisation%20Tutorials/Hierarchical%20Risk%20Parity%20(HRP)/HRP%20use%20examples.ipynb

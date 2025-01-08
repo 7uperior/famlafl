@@ -73,7 +73,7 @@ fixed by estimating :math:`S_{n, t}` on backward-shifting windows :math:`n \in [
     S_{t}= \sup_{n \in [1, t]} \{ S_{n, t}\}
     \end{equation}
 
-.. py:currentmodule:: mlfinlab.structural_breaks.cusum
+.. py:currentmodule:: famlafl.structural_breaks.cusum
 
 .. autofunction:: get_chu_stinchcombe_white_statistics
 
@@ -159,7 +159,7 @@ For the unknown :math:`\tau^{*}` the test statistic is the Supremum Dickey-Fulle
 
 To address the second issue, the Supremum Augmented Dickey-Fuller test was introduced.
 
-.. py:currentmodule:: mlfinlab.structural_breaks.chow
+.. py:currentmodule:: famlafl.structural_breaks.chow
 
 .. autofunction:: get_chow_type_stat
 
@@ -242,13 +242,13 @@ and
 
 respectively.
 
-.. py:currentmodule:: mlfinlab.structural_breaks.sadf
+.. py:currentmodule:: famlafl.structural_breaks.sadf
 
 .. autofunction:: get_sadf
 
 The function used in the SADF Test to estimate the :math:`\hat\beta_{t_0,t}` is:
 
-.. py:currentmodule:: mlfinlab.structural_breaks.sadf
+.. py:currentmodule:: famlafl.structural_breaks.sadf
 
 .. autofunction:: get_betas
 
@@ -313,7 +313,7 @@ Examples
 
     import pandas as pd
     import numpy as np
-    from mlfinlab.structural_breaks import (get_chu_stinchcombe_white_statistics,
+    from famlafl.structural_breaks import (get_chu_stinchcombe_white_statistics,
                                             get_chow_type_stat, get_sadf)
 
     # Importing price data

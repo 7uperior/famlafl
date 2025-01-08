@@ -78,7 +78,7 @@ It can also be normalized using a known upper boundary:
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.codependence.information
+.. py:currentmodule:: famlafl.codependence.information
 
 .. autofunction:: get_mutual_info
 
@@ -159,7 +159,7 @@ The following example highlights how the various metrics behave under various va
     import numpy as np
     import matplotlib.pyplot as plt
 
-    from mlfinlab.codependence import distance_correlation, get_mutual_info, variation_of_information_score
+    from famlafl.codependence import distance_correlation, get_mutual_info, variation_of_information_score
     from ace import model # ace package is used for max correlation estimation
 
     def max_correlation(x: np.array, y: np.array) -> float:

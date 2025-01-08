@@ -14,7 +14,7 @@ market anomalies or how the market moves after an event.
 CUSUM Filter
 ############
 
-.. py:currentmodule:: mlfinlab.filters.filters
+.. py:currentmodule:: famlafl.filters.filters
 .. autofunction::  cusum_filter
 
 
@@ -22,7 +22,7 @@ An example showing how the CUSUM filter can be used to downsample a time series 
 
 .. code-block::
 
-   from mlfinlab.filters import cusum_filter
+   from famlafl.filters import cusum_filter
 
    cusum_events = cusum_filter(data['close'], threshold=0.05)
 
@@ -36,7 +36,7 @@ used to define explosive/peak points in time series.
 It uses rolling simple moving average, rolling simple moving standard deviation, and z_score(threshold). When the current
 time series value exceeds (rolling average + z_score * rolling std) an event is triggered.
 
-.. py:currentmodule:: mlfinlab.filters.filters
+.. py:currentmodule:: famlafl.filters.filters
 .. autofunction::  z_score_filter
 
 An example of how the Z-score filter can be used to downsample a time series:

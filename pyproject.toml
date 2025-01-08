@@ -1,24 +1,20 @@
 [tool.poetry]
-name = "mlfinlab"
-version = "0.13.0"
-description = "MlFinlab-ESEM helps portfolio managers and traders who want to leverage the power of machine learning by providing reproducible, interpretable, and easy to use tools."
-authors = ["Hudson and Thames Quantitative Research <research@hudsonthames.org>",
-"Vadim Surin <vdmsurin@gmail.com>"
-]
-license = "MIT"
+name = "famlafl"
+version = "0.1.0"
+description = "FAMLAFL Aren’t Machine Learning And Financial Laboratory"
+authors = ["Vadim Surin <vdmsurin@gmail.com>"]
+license = "Proprietary"
 readme = "README.md"
 keywords = ["machinelearning", "finance", "investment", "education"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Education", 
     "Intended Audience :: Science/Research",
     "Intended Audience :: Financial and Insurance Industry",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -35,7 +31,7 @@ scipy = "*"
 statsmodels = "*"
 matplotlib = "*"
 cvxpy = "*"
-tqdm = "^4.67.1"
+tqdm = ">=4.67"
 
 [tool.poetry.group.dev.dependencies]
 codecov = "*"

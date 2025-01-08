@@ -32,7 +32,7 @@ services such as high-quality tick data, journal subscriptions.
 
 The goal of the program is to gain Researcher status. We will guide you through the following achievements:
 
-1. Make a sizable contribution to the mlfinlab library.
+1. Make a sizable contribution to the famlafl library.
 2. Passed the following production-ready checks: code style and 100% test coverage.
 3. Inline documentation, docstrings, and sphinx documentation.
 4. Completed tutorial notebooks to show mastery of the concepts worked on and provide external users with guided documentation.

@@ -97,7 +97,7 @@ The output of the algorithm is the reordered correlation matrix, clustering resu
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.clustering.onc
+.. py:currentmodule:: famlafl.clustering.onc
 .. autofunction:: get_onc_clusters
 
 Example
@@ -108,7 +108,7 @@ An example showing how the ONC algorithm is used can be seen below:
 .. code-block::
 
     import pandas as pd
-    from mlfinlab.clustering import onc
+    from famlafl.clustering import onc
 
     # Import dataframe of returns for assets
     asset_returns = pd.read_csv(DATA_PATH, index_col='Date', parse_dates=True)

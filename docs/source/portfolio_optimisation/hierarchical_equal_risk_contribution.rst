@@ -92,7 +92,7 @@ are the risk contributions of left and right clusters.
     and can underestimate the true risk of a portfolio which is why there are many other important risk metrics used by
     investment managers that can correctly reflect the true risk of a portfolio/asset. With respect to this, the original HRP
     algorithm can be tweaked to allocate its weights based on different risk representations of the clusters and generate
-    better weights. The HERC method in mlfinlab provides the following risk metrics:
+    better weights. The HERC method in famlafl provides the following risk metrics:
 
     1. ``variance`` : Variance of the clusters is used as a risk metric.
     2. ``standard_deviation`` : Standard deviation of the clusters is used as a risk metric.
@@ -128,7 +128,7 @@ weight of the  :math:`i^{th}` cluster calculated in Step-3.
 Implementation
 ##############
 
-.. automodule:: mlfinlab.portfolio_optimization.herc
+.. automodule:: famlafl.portfolio_optimization.herc
 
     .. autoclass:: HierarchicalEqualRiskContribution
         :members:
@@ -155,7 +155,7 @@ Implementation
 
 .. tip::
     |h4| Different Linkage Methods |h4_|
-    The following linkage methods are supported by the HERC class in mlfinlab. (The following is taken directly from and we highly
+    The following linkage methods are supported by the HERC class in famlafl. (The following is taken directly from and we highly
     recommend you read):
 
     `Papenbrock, J., 2011. Asset Clusters and Asset Networks in Financial Risk Management and Portfolio Optimization (Doctoral
@@ -216,6 +216,6 @@ Research Notebooks
 
 The following research notebooks provide a more detailed exploration of the algorithm.
 
-* `How to use mlfinlab's HierarchicalEqualRiskContribution class`_
+* `How to use famlafl's HierarchicalEqualRiskContribution class`_
 
-.. _How to use mlfinlab's HierarchicalEqualRiskContribution class: https://github.com/hudson-and-thames/research/blob/master/Portfolio%20Optimisation%20Tutorials/Hierarchical%20Equal%20Risk%20Contribution%20(HERC)/HERC%20Tutorial%20Notebook.ipynb
+.. _How to use famlafl's HierarchicalEqualRiskContribution class: https://github.com/hudson-and-thames/research/blob/master/Portfolio%20Optimisation%20Tutorials/Hierarchical%20Equal%20Risk%20Contribution%20(HERC)/HERC%20Tutorial%20Notebook.ipynb

@@ -38,8 +38,8 @@ test set. This further prevents leakage where the purging process is not enough.
 Implementation
 **************
 
-.. py:currentmodule:: mlfinlab.cross_validation.cross_validation
-.. automodule:: mlfinlab.cross_validation.cross_validation
+.. py:currentmodule:: famlafl.cross_validation.cross_validation
+.. automodule:: famlafl.cross_validation.cross_validation
    :members:
 
 
@@ -76,8 +76,8 @@ CPCV algorithm:
 Implementation
 **************
 
-.. py:currentmodule:: mlfinlab.cross_validation.cross_validation
-.. automodule:: mlfinlab.cross_validation.combinatorial
+.. py:currentmodule:: famlafl.cross_validation.cross_validation
+.. automodule:: famlafl.cross_validation.combinatorial
    :members:
 
 Research Notebooks

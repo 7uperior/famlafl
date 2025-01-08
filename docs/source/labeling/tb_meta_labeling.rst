@@ -109,7 +109,7 @@ a 3, else not 3.
 
 Implementation
 ##############
-.. py:currentmodule:: mlfinlab.labeling.labeling
+.. py:currentmodule:: famlafl.labeling.labeling
 
 The following functions are used for the triple-barrier method which works in tandem with meta-labeling.
 
@@ -135,7 +135,7 @@ model, the process to generate meta-labels goes as follows.
 
    import numpy as np
    import pandas as pd
-   import mlfinlab as ml
+   import famlafl as ml
 
    # Read in data
    data = pd.read_csv('FILE_PATH')
@@ -190,7 +190,7 @@ Does Meta Labeling Add to Signal Efficacy?
 Successful and long-lasting quantitative research programs require a solid foundation that includes procurement and
 curation of data, creation of building blocks for feature engineering, state of the art methodologies, and backtesting.
 In this project we explore an example of applying meta labeling to high quality S&P500 EMini Futures data and create an
-open-source python package (mlfinlab) that is based on the work of Dr. Marcos Lopez de Prado in his book
+open-source python package (famlafl) that is based on the work of Dr. Marcos Lopez de Prado in his book
 ‘Advances in Financial Machine Learning’. Dr. de Prado’s book provides a guideline for creating a successful platform.
 We also implement a Trend Following and Mean-reverting Bollinger band based trading strategies. Our results confirm the
 fact that a combination of event-based sampling, triple-barrier method and meta labeling improves the performance of the

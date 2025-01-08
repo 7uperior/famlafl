@@ -32,11 +32,11 @@ common return at :math:`r_{t-1,t}`
 In terms of concurrency label C is the most 'pure' as it doesn't use any piece of information from other labels, while
 A is the 'dirtiest' as it uses information from both B and C. By understanding average label uniqueness you can measure
 how 'pure' your dataset is based on concurrency of labels. We can measure average label uniqueness using
-get_av_uniqueness_from_triple_barrier function from the mlfinlab package.
+get_av_uniqueness_from_triple_barrier function from the famlafl package.
 
 This function is the orchestrator to derive average sample uniqueness from a dateset labeled by the triple barrier method.
 
-.. py:currentmodule:: mlfinlab.sampling.concurrent
+.. py:currentmodule:: famlafl.sampling.concurrent
 
 .. autofunction:: get_av_uniqueness_from_triple_barrier
 
@@ -47,7 +47,7 @@ An example of calculating average uniqueness given that we have already have our
 
    import pandas as pd
    import numpy as np
-   from mlfinlab.sampling.concurrent import get_av_uniqueness_from_triple_barrier
+   from famlafl.sampling.concurrent import get_av_uniqueness_from_triple_barrier
 
    barrier_events = pd.read_csv('FILE_PATH', index_col=0, parse_dates=[0,2])
    close_prices = pd.read_csv('FILE_PATH', index_col=0, parse_dates=[0,2])
@@ -75,9 +75,9 @@ uniqueness of selected subsamples.
 Implementation
 **************
 
-The core functions behind Sequential Bootstrapping are implemented in mlfinlab and can be seen below:
+The core functions behind Sequential Bootstrapping are implemented in famlafl and can be seen below:
 
-.. py:currentmodule:: mlfinlab.sampling.bootstrapping
+.. py:currentmodule:: famlafl.sampling.bootstrapping
 .. autofunction:: get_ind_matrix
 
 .. autofunction:: get_ind_mat_average_uniqueness
@@ -108,13 +108,13 @@ correspond to price returns timestamps which were used during samples labelling.
    ind_mat.loc[:, 1] = [0, 0, 1, 1, 0, 0]
    ind_mat.loc[:, 2] = [0, 0, 0, 0, 1, 1]
 
-One can use get_ind_matrix method from mlfinlab to build indicator matrix from triple-barrier events.
+One can use get_ind_matrix method from famlafl to build indicator matrix from triple-barrier events.
 
 .. code-block::
 
    triple_barrier_ind_mat = get_ind_matrix(barrier_events)
 
-We can get average label uniqueness on indicator matrix using get_ind_mat_average_uniqueness function from mlfinlab.
+We can get average label uniqueness on indicator matrix using get_ind_mat_average_uniqueness function from famlafl.
 
 .. code-block::
 
@@ -157,7 +157,7 @@ For performance increase we optimized and parallesied for-loop using numba, whic
 
 Now let's finish the example:
 
-To be as close to the mlfinlab implementation let's convert ind_mat to numpy matrix
+To be as close to the famlafl implementation let's convert ind_mat to numpy matrix
 
 .. code-block::
 
@@ -227,7 +227,7 @@ The most probable sample would be 2 in this case.
 
 After 4 steps of sequential bootstrapping our drawn samples are [1, 2, 0, 2].
 
-Let's see how this example is solved by the mlfinlab implementation. To reproduce that:
+Let's see how this example is solved by the famlafl implementation. To reproduce that:
 
 1) we need to set warmup to [1], which corresponds to phi = [1] on the first step
 2) verbose = True to print updated probabilities
@@ -297,7 +297,7 @@ example, on average Sequential Bootstrapping algorithm has higher average unique
 Sample Weights
 ##############
 
-mlfinlab supports two methods of applying sample weights. The first is weighting an observation based on its given return
+famlafl supports two methods of applying sample weights. The first is weighting an observation based on its given return
 as well as average uniqueness. The second is weighting an observation based on a time decay.
 
 By Returns and Average Uniqueness
@@ -305,7 +305,7 @@ By Returns and Average Uniqueness
 
 The following function utilizes a samples average uniqueness and its return to compute sample weights:
 
-.. py:currentmodule:: mlfinlab.sample_weights.attribution
+.. py:currentmodule:: famlafl.sample_weights.attribution
 .. autofunction:: get_weights_by_return
 
 This function can be utilized as shown below assuming we have already found our barrier events
@@ -314,7 +314,7 @@ This function can be utilized as shown below assuming we have already found our 
 
     import pandas as pd
     import numpy as np
-    from mlfinlab.sample_weights.attribution import get_weights_by_return
+    from famlafl.sample_weights.attribution import get_weights_by_return
 
     barrier_events = pd.read_csv('FILE_PATH', index_col=0, parse_dates=[0,2])
     close_prices = pd.read_csv('FILE_PATH', index_col=0, parse_dates=[0,2])
@@ -336,7 +336,7 @@ This function can be utilized as shown below assuming we have already found our 
 
     import pandas as pd
     import numpy as np
-    from mlfinlab.sample_weights.attribution import get_weights_by_time_decay
+    from famlafl.sample_weights.attribution import get_weights_by_time_decay
 
 
     barrier_events = pd.read_csv('FILE_PATH', index_col=0, parse_dates=[0,2])

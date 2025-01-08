@@ -1,35 +1,22 @@
+# FAMLAFL: FAMLAFL Aren’t Machine Learning And Financial Laboratory
 
-MlFinlab-esem (based on MlFinlab of Hudson and Thames Quantitative Research <research@hudsonthames.org>) is a python package which helps portfolio managers and traders who want to leverage the power of machine learning by providing reproducible, interpretable, and easy to use tools. 
 
 ## Installation
 
 For users:
 ```bash
-pip install mlfinlab
+pip install famlafl
 ```
 
 Or with poetry:
 ```bash
-poetry add mlfinlab
-```
-
-For developers:
-```bash
-# Clone the repository
-git clone https://github.com/hudson-and-thames/mlfinlab.git
-cd mlfinlab
-
-# Install dependencies with poetry
-poetry install
-
-# Run tests
-poetry run pytest
+poetry add famlafl
 ```
 
 ## Project Structure
 
 ```
-mlfinlab/
+famlafl/
 ├── backtest_statistics/    # Backtesting tools and statistics
 ├── bet_sizing/            # Position sizing and bet sizing tools
 ├── clustering/            # Clustering algorithms for financial data
@@ -52,40 +39,7 @@ mlfinlab/
 └── tests/               # Unit tests
 ```
 
-## Features
-
-We source all of our implementations from the most elite and peer-reviewed journals. Including publications from: 
-1. The Journal of Financial Data Science
-2. The Journal of Portfolio Management
-3. The Journal of Algorithmic Finance
-4. Cambridge University Press
-
-The package has its foundations in the two graduate level textbooks: 
-1. Advances in Financial Machine Learning
-2. Machine Learning for Asset Managers
-
 ## Development
-
-### Building Documentation
-
-Documentation can be built in several ways:
-
-1. Using sphinx-build directly (recommended):
-```bash
-poetry run sphinx-build -b html docs/source docs/build/html
-```
-
-2. Using make:
-```bash
-cd docs && poetry run make html
-```
-
-3. Using make.bat on Windows:
-```bash
-cd docs && poetry run make.bat html
-```
-
-The documentation will be generated in `docs/build/html/`.
 
 ### Running Tests
 
@@ -94,37 +48,46 @@ The documentation will be generated in `docs/build/html/`.
 poetry run pytest
 
 # Run tests with coverage
-poetry run pytest --cov=mlfinlab
+poetry run pytest --cov=famlafl
 
 # Run specific test file
-poetry run pytest mlfinlab/tests/test_specific_file.py
+poetry run pytest famlafl/tests/test_specific_file.py
 ```
-
-## Praise for MlFinLab
-> "Financial markets are complex systems like no other. Extracting signal from financial data requires specialized tools
-> that are distinct from those used in general machine learning. The MlFinLab package compiles important algorithms 
-> that every quant should know and use."
-
-Dr. Marcos Lopez de Prado, Co-founder and CIO at True Positive Technologies; Professor of Practice at Cornell University
-
->"Those who doubt open source libraries just need to look at the impact of Pandas, Scikit-learn, and the like. MIFinLab 
-is doing to financial machine learning what Tensorflow and PyTorch are doing to deep learning."
-
-Dr. Ernest Chan, Hedge Fund Manager at QTS & Author
-
->"For many decades, finance has relied on overly simplistic statistical techniques to identify patterns in data. 
->Machine learning promises to change that by allowing researchers to use modern nonlinear and highly dimensional 
->techniques. Yet, applying those machine learning algorithms to model financial problems is easier said than done: 
->finance is not a plug-and-play subject as it relates to machine learning.
->
->MlFinLab provides access to the latest cutting edges methods. MlFinLab is thus essential for quants who want to be 
->ahead of the technology rather than being replaced by it."
-
-Dr. Thomas Raffinot, Financial Data Scientist at ENGIE Global Markets
 
 
 ## Contributing
 We welcome contributions from the community! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more details on how to get involved.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This is a **fork** of [mlfinlab (ArbitrageLab)](https://github.com/hudson-and-thames/mlfinlab), 
+developed by Hudson & Thames Quantitative Research.
+
+> **Important**  
+> - All mlfinlab-derived code here remains under Hudson & Thames’s 
+>   [“all rights reserved” license](https://github.com/hudson-and-thames/mlfinlab#license).
+> - Any new or original code that I (Vadim Surin) wrote **from scratch** (and **does not** derive from mlfinlab code) 
+>   is released under the [BSD-3-Clause License](./LICENSE). 
+>   However, usage in combination with mlfinlab code is still governed by Hudson & Thames’s restrictions.
+
+### Licensing Overview
+
+1. **Hudson & Thames License (All Rights Reserved)**  
+   The original mlfinlab portion of this repository is subject to the 
+   [Hudson & Thames license](https://github.com/hudson-and-thames/mlfinlab#license) 
+   (or see the license text included in this repo’s `LICENSE` file). 
+   
+   Their license **overrides** any open-source terms with respect to the mlfinlab files.
+
+2. **BSD-3-Clause (for My Independent Code)**  
+   Purely original files that do not include or derive from mlfinlab 
+   logic can be used under BSD-3-Clause terms. 
+   
+   > **Note**: If these files are used in conjunction with mlfinlab code, 
+   > the combined work is effectively subject to Hudson & Thames’s license 
+   > to the extent of mlfinlab’s portion.
+
+### Usage
+
+Feel free to experiment with my additions, but remember mlfinlab’s license 
+requires you to comply with Hudson & Thames’s terms for the original 
+(and derived) code.

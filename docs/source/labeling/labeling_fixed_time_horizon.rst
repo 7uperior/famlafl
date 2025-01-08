@@ -65,8 +65,8 @@ about the path of the prices [Lopez de Prado, 2018].
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.labeling.fixed_time_horizon
-.. automodule:: mlfinlab.labeling.fixed_time_horizon
+.. py:currentmodule:: famlafl.labeling.fixed_time_horizon
+.. automodule:: famlafl.labeling.fixed_time_horizon
    :members:
 
 Example
@@ -78,7 +78,7 @@ Below is an example on how to use the Fixed Horizon labeling technique on real d
     import pandas as pd
     import numpy as np
 
-    from mlfinlab.labeling import fixed_time_horizon
+    from famlafl.labeling import fixed_time_horizon
 
     # Import price data.
     data = pd.read_csv('../Sample-Data/stock_prices.csv', index_col='Date', parse_dates=True)

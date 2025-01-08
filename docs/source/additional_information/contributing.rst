@@ -15,7 +15,7 @@ in our `Mentorship Program <https://hudsonthames.org/mentorship/>`_.
 
 There is of course room for the public to make contributions. The most useful are those that help to improve user experience.
 Good examples of this is writing `tutorial notebooks <https://github.com/hudson-and-thames/research>`_ which answer questions
-from the back of a chapter, mlfinlab recipes, improving docstrings, and adding new sphinx documentation.
+from the back of a chapter, famlafl recipes, improving docstrings, and adding new sphinx documentation.
 
 .. _live project board: https://github.com/orgs/hudson-and-thames/projects
 
@@ -31,4 +31,4 @@ We have created `templates`_ to help aid in creating issues and PRs:
 
 Please do create issues for new feature requests and bug fixes.
 
-.. _templates: https://github.com/hudson-and-thames/mlfinlab/issues/new/choose
+.. _templates: https://github.com/hudson-and-thames/famlafl/issues/new/choose

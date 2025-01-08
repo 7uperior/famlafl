@@ -68,9 +68,9 @@ and May 2020.
 Implementation
 ##############
 
-.. py:currentmodule:: mlfinlab.labeling.excess_over_mean
+.. py:currentmodule:: famlafl.labeling.excess_over_mean
 
-.. automodule:: mlfinlab.labeling.excess_over_mean
+.. automodule:: famlafl.labeling.excess_over_mean
    :members:
 
 Example
@@ -80,7 +80,7 @@ Below is an example on how to create labels of excess over mean.
 .. code-block::
 
     import yfinance as yf
-    from mlfinlab.labeling import excess_over_mean
+    from famlafl.labeling import excess_over_mean
 
     # Import price data.
     tickers = "AAPL MSFT AMZN GOOG"

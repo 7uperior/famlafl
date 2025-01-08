@@ -85,7 +85,7 @@ specified.
 Supported Portfolio Allocation Solutions
 ########################################
 
-MlFinLab's :py:mod:`MeanVarianceOptimisation` class provide some common portfolio optimization problems out-of-the-box. In this section we go over a quick overview of
+FAMLAFL's :py:mod:`MeanVarianceOptimisation` class provide some common portfolio optimization problems out-of-the-box. In this section we go over a quick overview of
 these:
 
 Inverse Variance
@@ -391,12 +391,12 @@ Bringing it all together, the code looks like this:
 
 .. warning::
     Although we have written extensive unittests, the custom allocation code is still in an experimental stage and you may
-    encounter errors which we may have failed to incorporate. We request you to raise an issue `here <https://github.com/hudson-and-thames/mlfinlab/issues>`_ and we will promptly push a fix for it.
+    encounter errors which we may have failed to incorporate. We request you to raise an issue `here <https://github.com/hudson-and-thames/famlafl/issues>`_ and we will promptly push a fix for it.
 
 Implementation
 ##############
 
-.. automodule:: mlfinlab.portfolio_optimization.mean_variance
+.. automodule:: famlafl.portfolio_optimization.mean_variance
 
     .. autoclass:: MeanVarianceOptimisation
         :members:
