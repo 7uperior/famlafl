@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "famlafl"
-version = "0.1.9"
+version = "0.2.0"
 description = "FAMLAFL Aren’t Machine Learning And Financial Laboratory"
 authors = ["Vadim Surin <vdmsurin@gmail.com>"]
 license = "Proprietary"
@@ -36,6 +36,8 @@ statsmodels = "*"
 matplotlib = "*"
 cvxpy = "*"
 tqdm = "*"
+pyarrow = "*"
+polars = "*"
 
 [tool.poetry.group.dev.dependencies]
 codecov = "*"

@@ -91,3 +91,5 @@ developed by Hudson & Thames Quantitative Research.
 Feel free to experiment with my additions, but remember mlfinlab’s license 
 requires you to comply with Hudson & Thames’s terms for the original 
 (and derived) code.
+
+poetry run pytest famlafl/tests/test_standard_data_structures.py

@@ -1,32 +1,25 @@
-"""
-A base class for the various bar types. Includes the logic shared between classes, to minimise the amount of
-duplicated code.
-"""
-
+#famlafl/data_structures/base_bars.py
 from abc import ABC, abstractmethod
-from typing import Tuple, Union, Generator, Iterable, Optional
+from typing import Tuple, Union, Generator, Iterable, Optional, List
 
 import numpy as np
-import pandas as pd
-
+import polars as pl
 from famlafl.util.fast_ewma import ewma
 
 
-def _crop_data_frame_in_batches(df: pd.DataFrame, chunksize: int) -> list:
-    # pylint: disable=invalid-name
+def _crop_data_frame_in_batches(df: pl.DataFrame, chunksize: int) -> List[pl.DataFrame]:
     """
     Splits df into chunks of chunksize
 
-    :param df: (pd.DataFrame) Dataframe to split
+    :param df: (pl.DataFrame) Dataframe to split
     :param chunksize: (int) Number of rows in chunk
-    :return: (list) Chunks (pd.DataFrames)
+    :return: (list) Chunks (pl.DataFrame)
     """
+    total_rows = df.height
     generator_object = []
-    for _, chunk in df.groupby(np.arange(len(df)) // chunksize):
-        generator_object.append(chunk)
+    for i in range(0, total_rows, chunksize):
+        generator_object.append(df.slice(i, min(chunksize, total_rows - i)))
     return generator_object
-
-# pylint: disable=too-many-instance-attributes
 
 
 class BaseBars(ABC):
@@ -36,7 +29,7 @@ class BaseBars(ABC):
     they are included here so as to avoid a complicated nested class structure.
     """
 
-    def __init__(self, metric: str, batch_size: int = 2e7):
+    def __init__(self, metric: str, batch_size: int = int(2e7)):
         """
         Constructor
 
@@ -58,25 +51,32 @@ class BaseBars(ABC):
         # Batch_run properties
         self.flag = False  # The first flag is false since the first batch doesn't use the cache
 
-
-    def batch_run(self, file_path_or_df: Union[str, Iterable[str], pd.DataFrame], verbose: bool = True, to_csv: bool = False,
-                  output_path: Optional[str] = None) -> Union[pd.DataFrame, None]:
+    def batch_run(self, file_path_or_df: Union[str, Iterable[str], pl.DataFrame], verbose: bool = True, to_csv: bool = False,
+                 output_path: Optional[str] = None) -> Union[pl.DataFrame, None]:
         """
-        Reads csv file(s) or pd.DataFrame in batches and then constructs the financial data structure in the form of a DataFrame.
+        Reads csv file(s) or pl.DataFrame in batches and then constructs the financial data structure in the form of a DataFrame.
         The csv file or DataFrame must have only 3 columns: date_time, price, & volume.
 
-        :param file_path_or_df: (str, iterable of str, or pd.DataFrame) Path to the csv file(s) or Pandas Data Frame containing
-                                raw tick data  in the format[date_time, price, volume]
+        :param file_path_or_df: (str, iterable of str, or pl.DataFrame) Path to the csv file(s) or Polars Data Frame containing
+                               raw tick data in the format[date_time, price, volume]
         :param verbose: (bool) Flag whether to print message on each processed batch or not
         :param to_csv: (bool) Flag for writing the results of bars generation to local csv file, or to in-memory DataFrame
         :param output_path: (bool) Path to results file, if to_csv = True
 
-        :return: (pd.DataFrame or None) Financial data structure
+        :return: (pl.DataFrame or None) Financial data structure
         """
-
-        if to_csv is True:
-            header = True  # if to_csv is True, header should written on the first batch only
-            open(output_path, 'w').close()  # clean output csv file
+        schema = {
+            'date_time': pl.Datetime,
+            'tick_num': pl.Int64,
+            'open': pl.Float64,
+            'high': pl.Float64,
+            'low': pl.Float64,
+            'close': pl.Float64,
+            'volume': pl.Float64,
+            'cum_buy_volume': pl.Float64,
+            'cum_ticks': pl.Int64,
+            'cum_dollar_value': pl.Float64
+        }
 
         if verbose:  # pragma: no cover
             print('Reading data in batches:')
@@ -84,84 +84,104 @@ class BaseBars(ABC):
         # Read csv in batches
         count = 0
         final_bars = []
-        cols = ['date_time', 'tick_num', 'open', 'high', 'low', 'close', 'volume', 'cum_buy_volume', 'cum_ticks',
-                'cum_dollar_value']
+        
         for batch in self._batch_iterator(file_path_or_df):
             if verbose:  # pragma: no cover
                 print('Batch number:', count)
 
             list_bars = self.run(data=batch)
-
-            if to_csv is True:
-                pd.DataFrame(list_bars, columns=cols).to_csv(output_path, header=header, index=False, mode='a')
-                header = False
-            else:
-                # Append to bars list
-                final_bars += list_bars
+            final_bars.extend(list_bars)
             count += 1
 
         if verbose:  # pragma: no cover
             print('Returning bars \n')
 
-        # Return a DataFrame
+        # Return a DataFrame if we have bars
         if final_bars:
-            bars_df = pd.DataFrame(final_bars, columns=cols)
+            bars_df = pl.DataFrame(final_bars, schema=schema, orient="row")
+            if to_csv:
+                if verbose:  # pragma: no cover
+                    print('Writing to csv...')
+                bars_df.write_csv(output_path)
+                return None
             return bars_df
 
-        # Processed DataFrame is stored in .csv file, return None
         return None
 
-    def _batch_iterator(self, file_path_or_df: Union[str, Iterable[str], pd.DataFrame]) -> Generator[pd.DataFrame, None, None]:
+    def _batch_iterator(self, file_path_or_df: Union[str, Iterable[str], pl.DataFrame]) -> Generator[pl.DataFrame, None, None]:
         """
-        :param file_path_or_df: (str, iterable of str, or pd.DataFrame) Path to the csv file(s) or Pandas Data Frame
-                                containing raw tick data in the format[date_time, price, volume]
+        :param file_path_or_df: (str, iterable of str, or pl.DataFrame) Path to the csv file(s) or Polars Data Frame
+                               containing raw tick data in the format[date_time, price, volume]
         """
         if isinstance(file_path_or_df, (list, tuple)):
             # Assert format of all files
             for file_path in file_path_or_df:
                 self._read_first_row(file_path)
             for file_path in file_path_or_df:
-                for batch in pd.read_csv(file_path, chunksize=self.batch_size, parse_dates=[0]):
+                # Read the entire file but process in batches
+                df = pl.read_csv(file_path)
+                for batch in _crop_data_frame_in_batches(df, self.batch_size):
+                    if batch.is_empty():
+                        continue
+                    batch = self._process_dataframe(batch)
                     yield batch
 
         elif isinstance(file_path_or_df, str):
             self._read_first_row(file_path_or_df)
-            for batch in pd.read_csv(file_path_or_df, chunksize=self.batch_size, parse_dates=[0]):
+            # Read the entire file but process in batches
+            df = pl.read_csv(file_path_or_df)
+            for batch in _crop_data_frame_in_batches(df, self.batch_size):
+                if batch.is_empty():
+                    continue
+                batch = self._process_dataframe(batch)
                 yield batch
 
-        elif isinstance(file_path_or_df, pd.DataFrame):
-            for batch in _crop_data_frame_in_batches(file_path_or_df, self.batch_size):
+        elif isinstance(file_path_or_df, pl.DataFrame):
+            df = self._process_dataframe(file_path_or_df)
+            for batch in _crop_data_frame_in_batches(df, self.batch_size):
                 yield batch
 
         else:
-            raise ValueError('file_path_or_df is neither string(path to a csv file), iterable of strings, nor pd.DataFrame')
+            raise ValueError('file_path_or_df is neither string(path to a csv file), iterable of strings, nor pl.DataFrame')
+
+    def _process_dataframe(self, df: pl.DataFrame) -> pl.DataFrame:
+        """
+        Process DataFrame to ensure correct column names and types
+        """
+        # Rename columns if needed
+        if 'Date and Time' in df.columns:
+            df = df.rename({'Date and Time': 'date_time', 'Price': 'price', 'Volume': 'volume'})
+        
+        # Convert datetime if needed
+        if df['date_time'].dtype != pl.Datetime:
+            df = df.with_columns(pl.col('date_time').str.strptime(pl.Datetime, format='%Y/%m/%d %H:%M:%S.%3f'))
+        
+        return df
 
     def _read_first_row(self, file_path: str):
         """
         :param file_path: (str) Path to the csv file containing raw tick data in the format[date_time, price, volume]
         """
         # Read in the first row & assert format
-        first_row = pd.read_csv(file_path, nrows=1)
+        first_row = pl.read_csv(file_path, n_rows=1)
+        first_row = self._process_dataframe(first_row)
         self._assert_csv(first_row)
 
-    def run(self, data: Union[list, tuple, pd.DataFrame]) -> list:
+    def run(self, data: Union[list, tuple, pl.DataFrame]) -> list:
         """
         Reads a List, Tuple, or Dataframe and then constructs the financial data structure in the form of a list.
         The List, Tuple, or DataFrame must have only 3 attrs: date_time, price, & volume.
 
-        :param data: (list, tuple, or pd.DataFrame) Dict or ndarray containing raw tick data in the format[date_time, price, volume]
+        :param data: (list, tuple, or pl.DataFrame) Dict or ndarray containing raw tick data in the format[date_time, price, volume]
 
         :return: (list) Financial data structure
         """
-
         if isinstance(data, (list, tuple)):
             values = data
-
-        elif isinstance(data, pd.DataFrame):
-            values = data.values
-
+        elif isinstance(data, pl.DataFrame):
+            values = data.to_numpy()
         else:
-            raise ValueError('data is neither list nor tuple nor pd.DataFrame')
+            raise ValueError('data is neither list nor tuple nor pl.DataFrame')
 
         list_bars = self._extract_bars(data=values)
 
@@ -171,11 +191,11 @@ class BaseBars(ABC):
         return list_bars
 
     @abstractmethod
-    def _extract_bars(self, data: pd.DataFrame) -> list:
+    def _extract_bars(self, data: np.ndarray) -> list:
         """
         This method is required by all the bar types and is used to create the desired bars.
 
-        :param data: (pd.DataFrame) Contains 3 columns - date_time, price, and volume.
+        :param data: (np.ndarray) Contains 3 columns - date_time, price, and volume.
         :return: (list) Bars built using the current batch.
         """
 
@@ -187,70 +207,73 @@ class BaseBars(ABC):
         """
 
     @staticmethod
-    def _assert_csv(test_batch: pd.DataFrame):
+    def _assert_csv(test_batch: pl.DataFrame):
         """
         Tests that the csv file read has the format: date_time, price, and volume.
         If not then the user needs to create such a file. This format is in place to remove any unwanted overhead.
 
-        :param test_batch: (pd.DataFrame) The first row of the dataset.
+        :param test_batch: (pl.DataFrame) The first row of the dataset.
         """
-        assert test_batch.shape[1] == 3, 'Must have only 3 columns in csv: date_time, price, & volume.'
-        assert isinstance(test_batch.iloc[0, 1], float), 'price column in csv not float.'
-        assert not isinstance(test_batch.iloc[0, 2], str), 'volume column in csv not int or float.'
+        assert test_batch.width == 3, 'Must have only 3 columns in csv: date_time, price, & volume.'
+        assert test_batch.schema['price'].is_float(), 'price column in csv not float.'
+        assert test_batch.schema['volume'].is_numeric(), 'volume column in csv not int or float.'
 
         try:
-            pd.to_datetime(test_batch.iloc[0, 0])
-        except ValueError:
-            raise ValueError('csv file, column 0, not a date time format:',
-                             test_batch.iloc[0, 0])
+            test_batch.select(pl.col('date_time').cast(pl.Datetime))
+        except:
+            raise ValueError('csv file, column 0, not a date time format:', test_batch[0, 'date_time'])
 
-    def _update_high_low(self, price: float) -> Union[float, float]:
+    def _update_high_low(self, price: float) -> Tuple[float, float]:
         """
         Update the high and low prices using the current price.
 
         :param price: (float) Current price
         :return: (tuple) Updated high and low prices
         """
-        if price > self.high_price:
-            high_price = price
-        else:
-            high_price = self.high_price
-
-        if price < self.low_price:
-            low_price = price
-        else:
-            low_price = self.low_price
-
+        high_price = max(self.high_price, price)
+        low_price = min(self.low_price, price)
         return high_price, low_price
 
-    def _create_bars(self, date_time: str, price: float, high_price: float, low_price: float, list_bars: list) -> None:
+    def _create_bars(
+        self,
+        date_time: str,
+        close_price: float,
+        high_price: float,
+        low_price: float,
+        list_bars: list
+    ) -> None:
         """
-        Given the inputs, construct a bar which has the following fields: date_time, open, high, low, close, volume,
-        cum_buy_volume, cum_ticks, cum_dollar_value.
-        These bars are appended to list_bars, which is later used to construct the final bars DataFrame.
-
-        :param date_time: (str) Timestamp of the bar
-        :param price: (float) The current price
-        :param high_price: (float) Highest price in the period
-        :param low_price: (float) Lowest price in the period
-        :param list_bars: (list) List to which we append the bars
+        Construct a bar of 10 columns, consistent with tests:
+        date_time, tick_num, open, high, low, close,
+        volume, cum_buy_volume, cum_ticks, cum_dollar_value
+        and append it to list_bars.
         """
-        # Create bars
         open_price = self.open_price
+
+        # Ensure high/low also reflect the open, in case open is above/below
         high_price = max(high_price, open_price)
         low_price = min(low_price, open_price)
-        close_price = price
+
         volume = self.cum_statistics['cum_volume']
         cum_buy_volume = self.cum_statistics['cum_buy_volume']
         cum_ticks = self.cum_statistics['cum_ticks']
         cum_dollar_value = self.cum_statistics['cum_dollar_value']
 
-        # Create a new row as a list
-        new_row = [date_time, self.tick_num, open_price, high_price, low_price,
-                  close_price, volume, cum_buy_volume, cum_ticks, cum_dollar_value]
-        
-        # Append the new row to list_bars
+        # Build row in the correct order
+        new_row = [
+            date_time,         # date_time
+            self.tick_num,     # tick_num
+            open_price,        # open
+            high_price,        # high
+            low_price,         # low
+            close_price,       # close
+            volume,            # volume
+            cum_buy_volume,    # cum_buy_volume
+            cum_ticks,         # cum_ticks
+            cum_dollar_value   # cum_dollar_value
+        ]
         list_bars.append(new_row)
+
 
     def _apply_tick_rule(self, price: float) -> int:
         """
@@ -312,7 +335,7 @@ class BaseImbalanceBars(BaseBars):
         :param exp_num_ticks_init: (int) Initial estimate for expected number of ticks in bar.
                                          For Const Imbalance Bars expected number of ticks equals expected number of ticks init
         :param analyse_thresholds: (bool) Flag to return thresholds values (theta, exp_num_ticks, exp_imbalance) in a
-                                          form of Pandas DataFrame
+                                          form of Polars DataFrame
         """
         BaseBars.__init__(self, metric, batch_size)
 
@@ -338,11 +361,11 @@ class BaseImbalanceBars(BaseBars):
         self.cum_statistics = {'cum_ticks': 0, 'cum_dollar_value': 0, 'cum_volume': 0, 'cum_buy_volume': 0}
         self.thresholds['cum_theta'] = 0
 
-    def _extract_bars(self, data: Tuple[dict, pd.DataFrame]) -> list:
+    def _extract_bars(self, data: np.ndarray) -> list:
         """
         For loop which compiles the various imbalance bars: dollar, volume, or tick.
 
-        :param data: (pd.DataFrame) Contains 3 columns - date_time, price, and volume.
+        :param data: (np.ndarray) Contains 3 columns - date_time, price, and volume.
         :return: (list) Bars built using the current batch.
         """
 
@@ -428,11 +451,10 @@ class BaseImbalanceBars(BaseBars):
     @abstractmethod
     def _get_exp_num_ticks(self):
         """
-        Abstract method which updates expected number of ticks when new run bar is formed
+        Abstract method which updates expected number of ticks when new imbalance bar is formed
         """
 
 
-# pylint: disable=too-many-instance-attributes
 class BaseRunBars(BaseBars):
     """
     Base class for Run Bars (EMA and Const) which implements run bars calculation logic
@@ -449,7 +471,7 @@ class BaseRunBars(BaseBars):
         :param expected_imbalance_window: (int) Window used to estimate expected imbalance from previous trades
         :param exp_num_ticks_init: (int) Initial estimate for expected number of ticks in bar.
                                          For Const Imbalance Bars expected number of ticks equals expected number of ticks init
-        :param analyse_thresholds: (bool) Flag to return thresholds values (thetas, exp_num_ticks, exp_runs) in Pandas DataFrame
+        :param analyse_thresholds: (bool) Flag to return thresholds values (thetas, exp_num_ticks, exp_runs) in Polars DataFrame
         """
         BaseBars.__init__(self, metric, batch_size)
 
@@ -481,11 +503,11 @@ class BaseRunBars(BaseBars):
         self.cum_statistics = {'cum_ticks': 0, 'cum_dollar_value': 0, 'cum_volume': 0, 'cum_buy_volume': 0}
         self.thresholds['cum_theta_buy'], self.thresholds['cum_theta_sell'], self.thresholds['buy_ticks_num'] = 0, 0, 0
 
-    def _extract_bars(self, data: Tuple[list, np.ndarray]) -> list:
+    def _extract_bars(self, data: np.ndarray) -> list:
         """
         For loop which compiles the various run bars: dollar, volume, or tick.
 
-        :param data: (list or np.ndarray) Contains 3 columns - date_time, price, and volume.
+        :param data: (np.ndarray) Contains 3 columns - date_time, price, and volume.
         :return: (list) of bars built using the current batch.
         """
 
@@ -587,7 +609,7 @@ class BaseRunBars(BaseBars):
 
         :param array: (list) of imbalances
         :param window: (int) EWMA window for calculation
-        :parawm warm_up: (bool) flag of whether warm up period passed
+        :param warm_up: (bool) flag of whether warm up period passed
         :return: expected_imbalance: (np.ndarray) 2P[b_t=1]-1, approximated using a EWMA
         """
         if len(array) < self.thresholds['exp_num_ticks'] and warm_up is True:

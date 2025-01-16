@@ -5,7 +5,7 @@ Tests the financial data structures
 import unittest
 import os
 import numpy as np
-import pandas as pd
+import polars as pl
 
 from famlafl.data_structures import run_data_structures as ds
 
@@ -47,7 +47,7 @@ class TestDataStructures(unittest.TestCase):
                                    expected_imbalance_window=10000,
                                    num_prev_bars=num_prev_bars, batch_size=50, verbose=False,
                                    to_csv=True, output_path='test.csv')
-        db4 = pd.read_csv('test.csv', parse_dates=[0])
+        db4 = pl.read_csv('test.csv', try_parse_dates=True)
 
         self.assertEqual(db1.shape, (2, 10))
 
@@ -57,27 +57,28 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(db1.shape == db4.shape)
 
         # Assert same values
-        self.assertTrue(np.all(db1.values == db2.values))
-        self.assertTrue(np.all(db1.values == db3.values))
-        self.assertTrue(np.all(db1.values == db4.values))
+        self.assertTrue(np.all(db1.to_numpy() == db2.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db3.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db4.to_numpy()))
 
         self.assertTrue(np.all(thresh_1.cum_theta_buy == thresh_2.cum_theta_buy))
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[0, 'open'], 1306.0)
-        self.assertEqual(db1.loc[0, 'high'], 1306.0)
-        self.assertEqual(db1.loc[0, 'low'], 1303.00)
-        self.assertEqual(db1.loc[0, 'close'], 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
 
-        # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[1, 'open'], 1305.75)
-        self.assertEqual(db1.loc[1, 'high'], 1308.75)
-        self.assertEqual(db1.loc[1, 'low'], 1305.25)
-        self.assertEqual(db1.loc[1, 'close'], 1307.25)
+        # Assert OHLC is correct (the second value)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("open").item(), 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("high").item(), 1308.75)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("low").item(), 1305.25)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("close").item(), 1307.25)
 
-        self.assertTrue((db1.loc[:, 'high'] >= db1.loc[:, 'low']).all())
-        self.assertTrue((db1.loc[:, 'volume'] >= db1.loc[:, 'cum_buy_volume']).all())
+        # Assert conditions across all rows
+        self.assertTrue((db1.select("high") >= db1.select("low")).all())
+        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -104,7 +105,7 @@ class TestDataStructures(unittest.TestCase):
                                    expected_imbalance_window=10000,
                                    num_prev_bars=num_prev_bars, batch_size=50, verbose=False,
                                    to_csv=True, output_path='test.csv')
-        db4 = pd.read_csv('test.csv', parse_dates=[0])
+        db4 = pl.read_csv('test.csv', try_parse_dates=True)
 
         self.assertEqual(db1.shape, (2, 10))
 
@@ -114,27 +115,28 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(db1.shape == db4.shape)
 
         # Assert same values
-        self.assertTrue(np.all(db1.values == db2.values))
-        self.assertTrue(np.all(db1.values == db3.values))
-        self.assertTrue(np.all(db1.values == db4.values))
+        self.assertTrue(np.all(db1.to_numpy() == db2.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db3.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db4.to_numpy()))
 
         self.assertTrue(np.all(thresh_1.cum_theta_buy == thresh_2.cum_theta_buy))
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[0, 'open'], 1306.0)
-        self.assertEqual(db1.loc[0, 'high'], 1306.0)
-        self.assertEqual(db1.loc[0, 'low'], 1303.00)
-        self.assertEqual(db1.loc[0, 'close'], 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
 
-        # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[1, 'open'], 1305.75)
-        self.assertEqual(db1.loc[1, 'high'], 1308.75)
-        self.assertEqual(db1.loc[1, 'low'], 1305.25)
-        self.assertEqual(db1.loc[1, 'close'], 1307.25)
+        # Assert OHLC is correct (the second value)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("open").item(), 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("high").item(), 1308.75)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("low").item(), 1305.25)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("close").item(), 1307.25)
 
-        self.assertTrue((db1.loc[:, 'high'] >= db1.loc[:, 'low']).all())
-        self.assertTrue((db1.loc[:, 'volume'] >= db1.loc[:, 'cum_buy_volume']).all())
+        # Assert conditions across all rows
+        self.assertTrue((db1.select("high") >= db1.select("low")).all())
+        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -161,7 +163,7 @@ class TestDataStructures(unittest.TestCase):
                                  expected_imbalance_window=10000,
                                  num_prev_bars=num_prev_bars, batch_size=50, verbose=False,
                                  to_csv=True, output_path='test.csv')
-        db4 = pd.read_csv('test.csv', parse_dates=[0])
+        db4 = pl.read_csv('test.csv', try_parse_dates=True)
 
         self.assertEqual(db1.shape, (2, 10))
 
@@ -171,27 +173,28 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(db1.shape == db4.shape)
 
         # Assert same values
-        self.assertTrue(np.all(db1.values == db2.values))
-        self.assertTrue(np.all(db1.values == db3.values))
-        self.assertTrue(np.all(db1.values == db4.values))
+        self.assertTrue(np.all(db1.to_numpy() == db2.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db3.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db4.to_numpy()))
 
         self.assertTrue(np.all(thresh_1.cum_theta_buy == thresh_2.cum_theta_buy))
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[0, 'open'], 1306.0)
-        self.assertEqual(db1.loc[0, 'high'], 1306.0)
-        self.assertEqual(db1.loc[0, 'low'], 1303.00)
-        self.assertEqual(db1.loc[0, 'close'], 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
 
-        # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[1, 'open'], 1305.75)
-        self.assertEqual(db1.loc[1, 'high'], 1308.75)
-        self.assertEqual(db1.loc[1, 'low'], 1305.25)
-        self.assertEqual(db1.loc[1, 'close'], 1307.25)
+        # Assert OHLC is correct (the second value)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("open").item(), 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("high").item(), 1308.75)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("low").item(), 1305.25)
+        self.assertEqual(db1.filter(pl.col("index") == 1).select("close").item(), 1307.25)
 
-        self.assertTrue((db1.loc[:, 'high'] >= db1.loc[:, 'low']).all())
-        self.assertTrue((db1.loc[:, 'volume'] >= db1.loc[:, 'cum_buy_volume']).all())
+        # Assert conditions across all rows
+        self.assertTrue((db1.select("high") >= db1.select("low")).all())
+        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -221,7 +224,7 @@ class TestDataStructures(unittest.TestCase):
                                    exp_num_ticks_constraints=exp_num_ticks_constraints,
                                    num_prev_bars=num_prev_bars, batch_size=50, verbose=False,
                                    to_csv=True, output_path='test.csv')
-        db4 = pd.read_csv('test.csv', parse_dates=[0])
+        db4 = pl.read_csv('test.csv', try_parse_dates=True)
 
         self.assertEqual(db1.shape, (5, 10))
 
@@ -231,25 +234,26 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(db1.shape == db4.shape)
 
         # Assert same values
-        self.assertTrue(np.all(db1.values == db2.values))
-        self.assertTrue(np.all(db1.values == db3.values))
-        self.assertTrue(np.all(db1.values == db4.values))
+        self.assertTrue(np.all(db1.to_numpy() == db2.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db3.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db4.to_numpy()))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[0, 'open'], 1306.0)
-        self.assertEqual(db1.loc[0, 'high'], 1306.0)
-        self.assertEqual(db1.loc[0, 'low'], 1303.0)
-        self.assertEqual(db1.loc[0, 'close'], 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
 
-        self.assertTrue((db1.loc[:, 'high'] >= db1.loc[:, 'low']).all())
+        # Assert conditions across all rows
+        self.assertTrue((db1.select("high") >= db1.select("low")).all())
 
-        # Assert OHLC is correct (some index)
-        self.assertEqual(db1.loc[4, 'open'], 1306)
-        self.assertEqual(db1.loc[4, 'high'], 1306.75)
-        self.assertEqual(db1.loc[4, 'low'], 1303.5)
-        self.assertEqual(db1.loc[4, 'close'], 1303.5)
+        # Assert OHLC is correct (last value)
+        self.assertEqual(db1.filter(pl.col("index") == 4).select("open").item(), 1306)
+        self.assertEqual(db1.filter(pl.col("index") == 4).select("high").item(), 1306.75)
+        self.assertEqual(db1.filter(pl.col("index") == 4).select("low").item(), 1303.5)
+        self.assertEqual(db1.filter(pl.col("index") == 4).select("close").item(), 1303.5)
 
-        self.assertTrue((db1.loc[:, 'volume'] >= db1.loc[:, 'cum_buy_volume']).all())
+        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -276,7 +280,7 @@ class TestDataStructures(unittest.TestCase):
                                      expected_imbalance_window=10000,
                                      num_prev_bars=num_prev_bars, batch_size=50, verbose=False,
                                      to_csv=True, output_path='test.csv')
-        db4 = pd.read_csv('test.csv', parse_dates=[0])
+        db4 = pl.read_csv('test.csv', try_parse_dates=True)
 
         self.assertEqual(db1.shape, (5, 10))
 
@@ -286,27 +290,28 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(db1.shape == db4.shape)
 
         # Assert same values
-        self.assertTrue(np.all(db1.values == db2.values))
-        self.assertTrue(np.all(db1.values == db3.values))
-        self.assertTrue(np.all(db1.values == db4.values))
+        self.assertTrue(np.all(db1.to_numpy() == db2.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db3.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db4.to_numpy()))
 
         self.assertTrue(np.all(thresh_1.cum_theta_buy == thresh_2.cum_theta_buy))
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[0, 'open'], 1306.0)
-        self.assertEqual(db1.loc[0, 'high'], 1306.0)
-        self.assertEqual(db1.loc[0, 'low'], 1303.00)
-        self.assertEqual(db1.loc[0, 'close'], 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
 
-        # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[4, 'open'], 1306)
-        self.assertEqual(db1.loc[4, 'high'], 1306.75)
-        self.assertEqual(db1.loc[4, 'low'], 1303.5)
-        self.assertEqual(db1.loc[4, 'close'], 1303.5)
+        # Assert OHLC is correct (last value)
+        self.assertEqual(db1.filter(pl.col("index") == 4).select("open").item(), 1306)
+        self.assertEqual(db1.filter(pl.col("index") == 4).select("high").item(), 1306.75)
+        self.assertEqual(db1.filter(pl.col("index") == 4).select("low").item(), 1303.5)
+        self.assertEqual(db1.filter(pl.col("index") == 4).select("close").item(), 1303.5)
 
-        self.assertTrue((db1.loc[:, 'high'] >= db1.loc[:, 'low']).all())
-        self.assertTrue((db1.loc[:, 'volume'] >= db1.loc[:, 'cum_buy_volume']).all())
+        # Assert conditions across all rows
+        self.assertTrue((db1.select("high") >= db1.select("low")).all())
+        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -333,7 +338,7 @@ class TestDataStructures(unittest.TestCase):
                                      expected_imbalance_window=10000,
                                      num_prev_bars=num_prev_bars, batch_size=50, verbose=False,
                                      to_csv=True, output_path='test.csv')
-        db4 = pd.read_csv('test.csv', parse_dates=[0])
+        db4 = pl.read_csv('test.csv', try_parse_dates=True)
 
         self.assertEqual(db1.shape, (5, 10))
 
@@ -343,34 +348,35 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(db1.shape == db4.shape)
 
         # Assert same values
-        self.assertTrue(np.all(db1.values == db2.values))
-        self.assertTrue(np.all(db1.values == db3.values))
-        self.assertTrue(np.all(db1.values == db4.values))
+        self.assertTrue(np.all(db1.to_numpy() == db2.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db3.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db4.to_numpy()))
 
         self.assertTrue(np.all(thresh_1.cum_theta_buy == thresh_2.cum_theta_buy))
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[0, 'open'], 1306.0)
-        self.assertEqual(db1.loc[0, 'high'], 1306.0)
-        self.assertEqual(db1.loc[0, 'low'], 1303.00)
-        self.assertEqual(db1.loc[0, 'close'], 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
 
-        # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[2, 'open'], 1306.0)
-        self.assertEqual(db1.loc[2, 'high'], 1307.75)
-        self.assertEqual(db1.loc[2, 'low'], 1305.75)
-        self.assertEqual(db1.loc[2, 'close'], 1307.75)
+        # Assert OHLC is correct (third value)
+        self.assertEqual(db1.filter(pl.col("index") == 2).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 2).select("high").item(), 1307.75)
+        self.assertEqual(db1.filter(pl.col("index") == 2).select("low").item(), 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 2).select("close").item(), 1307.75)
 
-        self.assertTrue((db1.loc[:, 'high'] >= db1.loc[:, 'low']).all())
-        self.assertTrue((db1.loc[:, 'volume'] >= db1.loc[:, 'cum_buy_volume']).all())
+        # Assert conditions across all rows
+        self.assertTrue((db1.select("high") >= db1.select("low")).all())
+        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
 
     def test_const_run_tick_bars(self):
         """
-        Tests the Const run dollar bars implementation.
+        Tests the Const run tick bars implementation.
         """
         exp_num_ticks_init = 1000
         num_prev_bars = 3
@@ -390,7 +396,7 @@ class TestDataStructures(unittest.TestCase):
                                    expected_imbalance_window=10000,
                                    num_prev_bars=num_prev_bars, batch_size=50, verbose=False,
                                    to_csv=True, output_path='test.csv')
-        db4 = pd.read_csv('test.csv', parse_dates=[0])
+        db4 = pl.read_csv('test.csv', try_parse_dates=True)
 
         self.assertEqual(db1.shape, (5, 10))
 
@@ -400,27 +406,28 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(db1.shape == db4.shape)
 
         # Assert same values
-        self.assertTrue(np.all(db1.values == db2.values))
-        self.assertTrue(np.all(db1.values == db3.values))
-        self.assertTrue(np.all(db1.values == db4.values))
+        self.assertTrue(np.all(db1.to_numpy() == db2.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db3.to_numpy()))
+        self.assertTrue(np.all(db1.to_numpy() == db4.to_numpy()))
 
         self.assertTrue(np.all(thresh_1.cum_theta_buy == thresh_2.cum_theta_buy))
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[0, 'open'], 1306.0)
-        self.assertEqual(db1.loc[0, 'high'], 1306.0)
-        self.assertEqual(db1.loc[0, 'low'], 1303.00)
-        self.assertEqual(db1.loc[0, 'close'], 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
+        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
 
-        # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.loc[2, 'open'], 1306.0)
-        self.assertEqual(db1.loc[2, 'high'], 1307.5)
-        self.assertEqual(db1.loc[2, 'low'], 1305.75)
-        self.assertEqual(db1.loc[2, 'close'], 1307.5)
+        # Assert OHLC is correct (third value)
+        self.assertEqual(db1.filter(pl.col("index") == 2).select("open").item(), 1306.0)
+        self.assertEqual(db1.filter(pl.col("index") == 2).select("high").item(), 1307.5)
+        self.assertEqual(db1.filter(pl.col("index") == 2).select("low").item(), 1305.75)
+        self.assertEqual(db1.filter(pl.col("index") == 2).select("close").item(), 1307.5)
 
-        self.assertTrue((db1.loc[:, 'high'] >= db1.loc[:, 'low']).all())
-        self.assertTrue((db1.loc[:, 'volume'] >= db1.loc[:, 'cum_buy_volume']).all())
+        # Assert conditions across all rows
+        self.assertTrue((db1.select("high") >= db1.select("low")).all())
+        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -429,24 +436,34 @@ class TestDataStructures(unittest.TestCase):
         """
         Asserts that the csv data being passed is of the correct format.
         """
-        wrong_date = ['2019-41-30', 200.00, np.int64(5)]
-        wrong_price = ['2019-01-30', 'asd', np.int64(5)]
-        wrong_volume = ['2019-01-30', 200.00, '1.5']
-        too_many_cols = ['2019-01-30', 200.00,
-                         np.int64(5), 'Limit order', 'B23']
+        wrong_date = pl.DataFrame({
+            'date_time': ['2019-41-30'],
+            'price': [200.00],
+            'volume': [np.int64(5)]
+        })
+        wrong_price = pl.DataFrame({
+            'date_time': ['2019-01-30'],
+            'price': ['asd'],
+            'volume': [np.int64(5)]
+        })
+        wrong_volume = pl.DataFrame({
+            'date_time': ['2019-01-30'],
+            'price': [200.00],
+            'volume': ['1.5']
+        })
+        too_many_cols = pl.DataFrame({
+            'date_time': ['2019-01-30'],
+            'price': [200.00],
+            'volume': [np.int64(5)],
+            'type': ['Limit order'],
+            'id': ['B23']
+        })
 
         # pylint: disable=protected-access
-        self.assertRaises(ValueError, ds.BaseRunBars._assert_csv,
-                          pd.DataFrame(wrong_date).T)
+        self.assertRaises(ValueError, ds.BaseRunBars._assert_csv, wrong_date)
         # pylint: disable=protected-access
-        self.assertRaises(AssertionError,
-                          ds.BaseRunBars._assert_csv,
-                          pd.DataFrame(too_many_cols).T)
+        self.assertRaises(AssertionError, ds.BaseRunBars._assert_csv, too_many_cols)
         # pylint: disable=protected-access
-        self.assertRaises(AssertionError,
-                          ds.BaseRunBars._assert_csv,
-                          pd.DataFrame(wrong_price).T)
+        self.assertRaises(AssertionError, ds.BaseRunBars._assert_csv, wrong_price)
         # pylint: disable=protected-access
-        self.assertRaises(AssertionError,
-                          ds.BaseRunBars._assert_csv,
-                          pd.DataFrame(wrong_volume).T)
+        self.assertRaises(AssertionError, ds.BaseRunBars._assert_csv, wrong_volume)
