@@ -1,8 +1,0 @@
-[core]
-    autostage = true
-    remote = backblaze-ml
-['remote "backblaze-ml"']
-    url = s3://data-hustler
-    endpointurl = https://s3.eu-central-003.backblazeb2.com
-    access_key_id = 00360238c5a3b370000000001
-    secret_access_key = K003hS9qrrU2wGZjonZ4zMvH4+Zz/RQ

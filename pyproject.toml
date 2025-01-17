@@ -9,7 +9,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.11"
+python = "^3.11"
 catboost = "^1.2.7"
 tensorflow = "^2.18.0"
 torch = "^2.5.1"
@@ -28,12 +28,9 @@ arch = "^7.2.0"
 fastparquet = "^2024.11.0"
 pyarrow = "^18.0.0"
 ta = "^0.11.0"
-dvc = "^3.56.0"
-dvc-s3 = "^3.2.0"
 shap = "^0.46.0"
 aiofiles = "^24.1.0"
 pytorch-lightning = "^2.4.0"
-famlafl = "^0.1.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"

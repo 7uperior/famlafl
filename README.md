@@ -1,14 +1,36 @@
+
 # 📊 Data Hustler
 
 Welcome to **Data Hustler**! This project is dedicated to analyzing and forecasting time series data.
 
 ## 🚀 Getting Started
 
+
+
 1. **Clone the Repository:** 🖥️
 
    ```bash
    git clone https://github.com/7uperior/data-hustler.git
    cd data-hustler
+   ```
+
+   And install submodule
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+   to update submodule
+   ```bash
+   cd famlafl
+   git pull origin main
+   ```
+
+   and push this changes to cmf repo
+   ```bash
+   cd ..
+   git add famlafl
+   git commit -m "Update submodule famlafl to the latest commit"
+   git push
    ```
 
 2. **Install Dependencies:** 📦
@@ -27,13 +49,45 @@ Welcome to **Data Hustler**! This project is dedicated to analyzing and forecast
    poetry run pre-commit install
    ```
 
-4. **Pull Data with DVC:** 📥
+4. **Pull Data with Rclone:** 📥
 
-   Retrieve the latest data:
+   I use A Backblaze B2 account for cloud storage.
+
+   1. Install [Rclone](https://rclone.org):
 
    ```bash
-   dvc pull
+   sudo apt-get install rclone
    ```
+
+	2. configure `rclone` for Backblaze B2
+   	```bash
+	rclone config
+	```
+	2. Follow the prompts to create a new remote. Use the following values:
+	   - **Storage Type**: Backblaze B2 (key 5)
+	   - **Account ID**: Your Backblaze account ID or Application Key ID
+	   - **Application Key**: Your Backblaze Application Key
+	3. After saving config. Verify Remote:
+	```bash
+	rclone listremotes
+	```
+	#### Example Configuration
+	```
+	Name                 Type
+	====                 ====
+	backblaze            b2
+	```
+
+
+   4. Sync Data
+	Create the required local directory and sync your Backblaze data to the local system:
+	```bash
+	mkdir -p cmf/data
+	rclone sync backblaze:data-hustler cmf/data
+	```
+
+
+   Extra: for upload needed data to remote server 'b2 sync . b2://data-hustler/initial_train_data'
 
 ## 🛠️ Development Workflow
 
