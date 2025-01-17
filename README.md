@@ -93,3 +93,9 @@ requires you to comply with Hudson & Thames’s terms for the original
 (and derived) code.
 
 poetry run pytest famlafl/tests/test_standard_data_structures.py
+
+
+
+## to get tested data
+rclone sync backblaze:data-hustler/parquet_samples famlafl/tests/test_data_new/parquet_samples
+rclone sync backblaze:data-hustler/csv_samples famlafl/tests/test_data_new/csv_samples

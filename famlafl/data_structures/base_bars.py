@@ -17,6 +17,7 @@ def _crop_data_frame_in_batches(df: pl.DataFrame, chunksize: int) -> List[pl.Dat
     """
     total_rows = df.height
     generator_object = []
+    chunksize = int(chunksize)
     for i in range(0, total_rows, chunksize):
         generator_object.append(df.slice(i, min(chunksize, total_rows - i)))
     return generator_object
@@ -29,27 +30,41 @@ class BaseBars(ABC):
     they are included here so as to avoid a complicated nested class structure.
     """
 
-    def __init__(self, metric: str, batch_size: int = int(2e7)):
+    def __init__(
+        self,
+        metric: str,
+        batch_size: int = int(2e7),
+        date_col: str = "date_time",
+        price_col: str = "price",
+        volume_col: str = "volume",
+    ):
         """
-        Constructor
-
-        :param metric: (str) Type of imbalance bar to create. Example: dollar_imbalance.
-        :param batch_size: (int) Number of rows to read in from the csv, per batch.
+        :param metric: (str) Type of imbalance bar to create. Example: 'dollar_imbalance'.
+        :param batch_size: (int) Number of rows to read from the CSV, per batch.
+        :param date_col: (str) Name of the date/time column.
+        :param price_col: (str) Name of the price column.
+        :param volume_col: (str) Name of the volume column.
         """
-
-        # Base properties
         self.metric = metric
         self.batch_size = batch_size
         self.prev_tick_rule = 0
 
+        # Store user-provided column names
+        self.date_col = date_col
+        self.price_col = price_col
+        self.volume_col = volume_col
+
         # Cache properties
         self.open_price, self.prev_price, self.close_price = None, None, None
         self.high_price, self.low_price = -np.inf, np.inf
-        self.cum_statistics = {'cum_ticks': 0, 'cum_dollar_value': 0, 'cum_volume': 0, 'cum_buy_volume': 0}
-        self.tick_num = 0  # Tick number when bar was formed
-
-        # Batch_run properties
-        self.flag = False  # The first flag is false since the first batch doesn't use the cache
+        self.cum_statistics = {
+            "cum_ticks": 0,
+            "cum_dollar_value": 0,
+            "cum_volume": 0,
+            "cum_buy_volume": 0,
+        }
+        self.tick_num = 0  # Tick number for newly formed bar
+        self.flag = False  # Whether we have already processed one batch
 
     def batch_run(self, file_path_or_df: Union[str, Iterable[str], pl.DataFrame], verbose: bool = True, to_csv: bool = False,
                  output_path: Optional[str] = None) -> Union[pl.DataFrame, None]:
@@ -148,24 +163,52 @@ class BaseBars(ABC):
         """
         Process DataFrame to ensure correct column names and types
         """
-        # Rename columns if needed
-        if 'Date and Time' in df.columns:
-            df = df.rename({'Date and Time': 'date_time', 'Price': 'price', 'Volume': 'volume'})
-        
-        # Convert datetime if needed
-        if df['date_time'].dtype != pl.Datetime:
-            df = df.with_columns(pl.col('date_time').str.strptime(pl.Datetime, format='%Y/%m/%d %H:%M:%S.%3f'))
-        
+        if df[self.date_col].dtype != pl.Datetime:
+            # A list of possible formats. Add/remove as needed for your data.
+            possible_formats = [
+                "%Y-%m-%d %H:%M:%S.%9f",   # up to nanoseconds
+                "%Y-%m-%d %H:%M:%S.%6f",   # up to microseconds
+                "%Y-%m-%d %H:%M:%S.%3f",   # up to milliseconds
+                "%Y-%m-%d %H:%M:%S",       # no fractional seconds
+                "%Y/%m/%d %H:%M:%S.%9f",   # slash variant, nano
+                "%Y/%m/%d %H:%M:%S.%6f",   # slash variant, micro
+                "%Y/%m/%d %H:%M:%S.%3f",   # slash variant, milli
+                "%Y/%m/%d %H:%M:%S",       # slash variant, no fraction
+            ]
+
+            # Try each format until something works
+            for fmt in possible_formats:
+                try:
+                    df = df.with_columns(
+                        pl.col("date_time").str.strptime(
+                            pl.Datetime,
+                            format=fmt,
+                            strict=True,  # or strict=False if you want to allow invalid -> null
+                        )
+                    )
+                    # If we get here, parsing succeeded. Break out of the loop.
+                    break
+                except pl.ComputeError:
+                    # Parsing failed for this format; move to the next one
+                    pass
+            else:
+                # If we never broke out of the loop, raise an error
+                raise ValueError(
+                    "Could not parse 'date_time' with any known format. "
+                    "Please confirm your timestamp format in the CSV."
+                )
+
         return df
 
     def _read_first_row(self, file_path: str):
         """
-        :param file_path: (str) Path to the csv file containing raw tick data in the format[date_time, price, volume]
+        Read the first row & assert format using the user-provided column names.
         """
-        # Read in the first row & assert format
         first_row = pl.read_csv(file_path, n_rows=1)
         first_row = self._process_dataframe(first_row)
-        self._assert_csv(first_row)
+        # Now pass your custom columns to _assert_csv:
+        self._assert_csv(first_row, self.date_col, self.price_col, self.volume_col)
+
 
     def run(self, data: Union[list, tuple, pl.DataFrame]) -> list:
         """
@@ -194,35 +237,131 @@ class BaseBars(ABC):
     def _extract_bars(self, data: np.ndarray) -> list:
         """
         This method is required by all the bar types and is used to create the desired bars.
+        Iterates over rows, building "imbalance" bars.
 
-        :param data: (np.ndarray) Contains 3 columns - date_time, price, and volume.
-        :return: (list) Bars built using the current batch.
+        :param data: (np.ndarray) shape (N,3) -> [date_time, price, volume]
+        :return: (list) bars generated from this chunk
         """
+        list_bars = []
+        for row in data:
+            date_time = row[0]
+            self.tick_num += 1
+            price = float(row[1])
+            volume = float(row[2])
+            dollar_value = price * volume
+            signed_tick = self._apply_tick_rule(price)
+
+            if self.open_price is None:
+                self.open_price = price
+
+            # Update high/low
+            self.high_price, self.low_price = self._update_high_low(price)
+
+            # Update stats
+            self.cum_statistics["cum_ticks"] += 1
+            self.cum_statistics["cum_dollar_value"] += dollar_value
+            self.cum_statistics["cum_volume"] += volume
+            if signed_tick == 1:
+                self.cum_statistics["cum_buy_volume"] += volume
+
+            # Imbalance
+            imbalance = self._get_imbalance(price, signed_tick, volume)
+            self.imbalance_tick_statistics["imbalance_array"].append(imbalance)
+            self.thresholds["cum_theta"] += imbalance
+
+            # Possibly set expected imbalance
+            if (
+                not list_bars
+                and np.isnan(self.thresholds["expected_imbalance"])
+            ):
+                self.thresholds["expected_imbalance"] = self._get_expected_imbalance(
+                    self.expected_imbalance_window
+                )
+
+            # If user wants threshold logs:
+            if self.bars_thresholds is not None:
+                self.thresholds["timestamp"] = date_time
+                self.bars_thresholds.append(dict(self.thresholds))
+
+            # Check if we cross threshold to form a bar
+            # i.e. abs(cum_theta) > exp_num_ticks * abs(expected_imbalance)
+            e_imb = self.thresholds["expected_imbalance"]
+            meets_condition = False
+            if not np.isnan(e_imb):
+                meets_condition = abs(self.thresholds["cum_theta"]) > (
+                    self.thresholds["exp_num_ticks"] * abs(e_imb)
+                )
+
+            if meets_condition:
+                # finalize the bar
+                self._create_bars(date_time, price, self.high_price, self.low_price, list_bars)
+                # track how many ticks in it
+                self.imbalance_tick_statistics["num_ticks_bar"].append(
+                    self.cum_statistics["cum_ticks"]
+                )
+                # recalc for next bar
+                self.thresholds["exp_num_ticks"] = self._get_exp_num_ticks()
+                self.thresholds["expected_imbalance"] = self._get_expected_imbalance(
+                    self.expected_imbalance_window
+                )
+                # reset for new bar
+                self._reset_cache()
+
+        return list_bars
 
     @abstractmethod
     def _reset_cache(self):
         """
         This method is required by all the bar types. It describes how cache should be reset
         when new bar is sampled.
+        Resets bar data upon forming a new bar.
         """
+        self.open_price = None
+        self.high_price, self.low_price = -np.inf, np.inf
+        self.cum_statistics = {
+            "cum_ticks": 0,
+            "cum_dollar_value": 0,
+            "cum_volume": 0,
+            "cum_buy_volume": 0,
+        }
+        self.thresholds["cum_theta"] = 0.0
 
     @staticmethod
-    def _assert_csv(test_batch: pl.DataFrame):
+    def _assert_csv(test_batch: pl.DataFrame, date_col: str, price_col: str, volume_col: str):
         """
-        Tests that the csv file read has the format: date_time, price, and volume.
-        If not then the user needs to create such a file. This format is in place to remove any unwanted overhead.
-
-        :param test_batch: (pl.DataFrame) The first row of the dataset.
+        Tests that the CSV file read has the format: date_col, price_col, and volume_col.
+        Adjust to match your 3 required columns.
         """
-        assert test_batch.width == 3, 'Must have only 3 columns in csv: date_time, price, & volume.'
-        assert test_batch.schema['price'].is_float(), 'price column in csv not float.'
-        assert test_batch.schema['volume'].is_numeric(), 'volume column in csv not int or float.'
+        # 1) Check columns exist
+        for col in [date_col, price_col, volume_col]:
+            if col not in test_batch.columns:
+                raise AssertionError(
+                    f"Expected column '{col}' in CSV, but not found. Columns: {test_batch.columns}"
+                )
 
+        # 2) Check we have exactly 3 columns, or you can relax this if you like:
+        if test_batch.width != 3:
+            raise AssertionError(
+                f"Must have exactly 3 columns in CSV: {date_col}, {price_col}, {volume_col}. "
+                f"Received: {test_batch.columns}"
+            )
+
+        # 3) Check price is float
+        if not test_batch.schema[price_col].is_float():
+            raise AssertionError(f"Price column '{price_col}' is not float type in CSV.")
+
+        # 4) Check volume is numeric
+        if not test_batch.schema[volume_col].is_numeric():
+            raise AssertionError(f"Volume column '{volume_col}' is not numeric in CSV.")
+
+        # 5) Check date_col can cast to datetime
         try:
-            test_batch.select(pl.col('date_time').cast(pl.Datetime))
+            test_batch.select(pl.col(date_col).cast(pl.Datetime))
         except:
-            raise ValueError('csv file, column 0, not a date time format:', test_batch[0, 'date_time'])
-
+            raise ValueError(
+                "CSV file, date_col cannot be cast to a datetime format:",
+                test_batch[0, date_col],
+            )
     def _update_high_low(self, price: float) -> Tuple[float, float]:
         """
         Update the high and low prices using the current price.

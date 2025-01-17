@@ -1,5 +1,6 @@
+#famlafl/tests/test_fast_ewma.py
 """
-Tests ewma function from fast_ewma module
+Tests ewma and ema_infinite functions from fast_ewma module
 """
 
 import unittest
@@ -7,7 +8,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from famlafl.util.fast_ewma import ewma
+from famlafl.util.fast_ewma import ewma, ema_infinite
 
 
 class TestDataStructures(unittest.TestCase):

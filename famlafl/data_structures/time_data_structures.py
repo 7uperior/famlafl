@@ -1,3 +1,4 @@
+#famlafl/data_structures/time_data_structures.py
 """
 Advances in Financial Machine Learning, Marcos Lopez de Prado
 Chapter 2: Financial Data Structures
@@ -8,7 +9,7 @@ Time bars generation logic
 # Imports
 from typing import Union, Iterable, Optional
 import numpy as np
-import pandas as pd
+import polars as pl
 
 from famlafl.data_structures.base_bars import BaseBars
 
@@ -61,7 +62,12 @@ class TimeBars(BaseBars):
 
         for row in data:
             # Set variables
-            date_time = row[0].timestamp()  # Convert to UTC timestamp
+            # Convert to UTC timestamp if it's not already a timestamp
+            if isinstance(row[0], (pl.Datetime, pl.Date)):
+                date_time = row[0].timestamp()
+            else:
+                date_time = row[0]  # Assume it's already a timestamp
+                
             self.tick_num += 1
             price = float(row[1])
             volume = row[2]
@@ -104,12 +110,12 @@ class TimeBars(BaseBars):
         return list_bars
 
 
-def get_time_bars(file_path_or_df: Union[str, Iterable[str], pd.DataFrame], resolution: str = 'D', num_units: int = 1, batch_size: int = 20000000,
+def get_time_bars(file_path_or_df: Union[str, Iterable[str], pl.DataFrame], resolution: str = 'D', num_units: int = 1, batch_size: int = 20000000,
                   verbose: bool = True, to_csv: bool = False, output_path: Optional[str] = None):
     """
     Creates Time Bars: date_time, open, high, low, close, volume, cum_buy_volume, cum_ticks, cum_dollar_value.
 
-    :param file_path_or_df: (str, iterable of str, or pd.DataFrame) Path to the csv file(s) or Pandas Data Frame containing raw tick data
+    :param file_path_or_df: (str, iterable of str, or pl.DataFrame) Path to the csv file(s) or Polars Data Frame containing raw tick data
                             in the format[date_time, price, volume]
     :param resolution: (str) Resolution type ('D', 'H', 'MIN', 'S')
     :param num_units: (int) Number of resolution units (3 days for example, 2 hours)
@@ -117,7 +123,7 @@ def get_time_bars(file_path_or_df: Union[str, Iterable[str], pd.DataFrame], reso
     :param verbose: (int) Print out batch numbers (True or False)
     :param to_csv: (bool) Save bars to csv after every batch run (True or False)
     :param output_path: (str) Path to csv file, if to_csv is True
-    :return: (pd.DataFrame) Dataframe of time bars, if to_csv=True return None
+    :return: (pl.DataFrame) Dataframe of time bars, if to_csv=True return None
     """
 
     bars = TimeBars(resolution=resolution, num_units=num_units, batch_size=batch_size)

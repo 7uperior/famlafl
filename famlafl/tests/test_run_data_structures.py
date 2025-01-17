@@ -1,3 +1,4 @@
+#famlafl/tests/test_run_data_structures.py
 """
 Tests the financial data structures
 """
@@ -65,20 +66,20 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
-
-        # Assert OHLC is correct (the second value)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("open").item(), 1305.75)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("high").item(), 1308.75)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("low").item(), 1305.25)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("close").item(), 1307.25)
+        self.assertEqual(db1["open"][0], 1306.0)
+        self.assertEqual(db1["high"][0], 1306.0)
+        self.assertEqual(db1["low"][0], 1303.00)
+        self.assertEqual(db1["close"][0], 1305.75)
+        
+         # Assert OHLC is correct (the second value)
+        self.assertEqual(db1["open"][1], 1305.75)
+        self.assertEqual(db1["high"][1], 1308.75)
+        self.assertEqual(db1["low"][1], 1305.25)
+        self.assertEqual(db1["close"][1], 1307.25)    
 
         # Assert conditions across all rows
-        self.assertTrue((db1.select("high") >= db1.select("low")).all())
-        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
+        self.assertTrue((db1["high"] >= db1["low"]).all())
+        self.assertTrue((db1["volume"] >= db1["cum_buy_volume"]).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -123,20 +124,20 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
+        self.assertEqual(db1["open"][0], 1306.0)
+        self.assertEqual(db1["high"][0], 1306.0)
+        self.assertEqual(db1["low"][0], 1303.00)
+        self.assertEqual(db1["close"][0], 1305.75)
 
         # Assert OHLC is correct (the second value)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("open").item(), 1305.75)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("high").item(), 1308.75)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("low").item(), 1305.25)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("close").item(), 1307.25)
+        self.assertEqual(db1["open"][1], 1305.75)
+        self.assertEqual(db1["high"][1], 1308.75)
+        self.assertEqual(db1["low"][1], 1305.25)
+        self.assertEqual(db1["close"][1], 1307.25)
 
         # Assert conditions across all rows
-        self.assertTrue((db1.select("high") >= db1.select("low")).all())
-        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
+        self.assertTrue((db1["high"] >= db1["low"]).all())
+        self.assertTrue((db1["volume"] >= db1["cum_buy_volume"]).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -181,20 +182,20 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
+        self.assertEqual(db1["open"][0], 1306.0)
+        self.assertEqual(db1["high"][0], 1306.0)
+        self.assertEqual(db1["low"][0], 1303.00)
+        self.assertEqual(db1["close"][0], 1305.75)
 
         # Assert OHLC is correct (the second value)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("open").item(), 1305.75)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("high").item(), 1308.75)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("low").item(), 1305.25)
-        self.assertEqual(db1.filter(pl.col("index") == 1).select("close").item(), 1307.25)
+        self.assertEqual(db1["open"][1], 1305.75)
+        self.assertEqual(db1["high"][1], 1308.75)
+        self.assertEqual(db1["low"][1], 1305.25)
+        self.assertEqual(db1["close"][1], 1307.25)
 
         # Assert conditions across all rows
-        self.assertTrue((db1.select("high") >= db1.select("low")).all())
-        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
+        self.assertTrue((db1["high"] >= db1["low"]).all())
+        self.assertTrue((db1["volume"] >= db1["cum_buy_volume"]).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -239,21 +240,21 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(np.all(db1.to_numpy() == db4.to_numpy()))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
+        self.assertEqual(db1["open"][0], 1306.0)
+        self.assertEqual(db1["high"][0], 1306.0)
+        self.assertEqual(db1["low"][0], 1303.0)
+        self.assertEqual(db1["close"][0], 1305.75)
 
         # Assert conditions across all rows
-        self.assertTrue((db1.select("high") >= db1.select("low")).all())
+        self.assertTrue((db1["high"] >= db1["low"]).all())
 
         # Assert OHLC is correct (last value)
-        self.assertEqual(db1.filter(pl.col("index") == 4).select("open").item(), 1306)
-        self.assertEqual(db1.filter(pl.col("index") == 4).select("high").item(), 1306.75)
-        self.assertEqual(db1.filter(pl.col("index") == 4).select("low").item(), 1303.5)
-        self.assertEqual(db1.filter(pl.col("index") == 4).select("close").item(), 1303.5)
+        self.assertEqual(db1["open"][4], 1306)
+        self.assertEqual(db1["high"][4], 1306.75)
+        self.assertEqual(db1["low"][4], 1303.5)
+        self.assertEqual(db1["close"][4], 1303.5)
 
-        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
+        self.assertTrue((db1["volume"] >= db1["cum_buy_volume"]).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -298,20 +299,20 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
+        self.assertEqual(db1["open"][0], 1306.0)
+        self.assertEqual(db1["high"][0], 1306.0)
+        self.assertEqual(db1["low"][0], 1303.00)
+        self.assertEqual(db1["close"][0], 1305.75)
 
         # Assert OHLC is correct (last value)
-        self.assertEqual(db1.filter(pl.col("index") == 4).select("open").item(), 1306)
-        self.assertEqual(db1.filter(pl.col("index") == 4).select("high").item(), 1306.75)
-        self.assertEqual(db1.filter(pl.col("index") == 4).select("low").item(), 1303.5)
-        self.assertEqual(db1.filter(pl.col("index") == 4).select("close").item(), 1303.5)
+        self.assertEqual(db1["open"][4], 1306)
+        self.assertEqual(db1["high"][4], 1306.75)
+        self.assertEqual(db1["low"][4], 1303.5)
+        self.assertEqual(db1["close"][4], 1303.5)
 
         # Assert conditions across all rows
-        self.assertTrue((db1.select("high") >= db1.select("low")).all())
-        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
+        self.assertTrue((db1["high"] >= db1["low"]).all())
+        self.assertTrue((db1["volume"] >= db1["cum_buy_volume"]).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -356,20 +357,20 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
+        self.assertEqual(db1["open"][0], 1306.0)
+        self.assertEqual(db1["high"][0], 1306.0)
+        self.assertEqual(db1["low"][0], 1303.00)
+        self.assertEqual(db1["close"][0], 1305.75)
 
         # Assert OHLC is correct (third value)
-        self.assertEqual(db1.filter(pl.col("index") == 2).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 2).select("high").item(), 1307.75)
-        self.assertEqual(db1.filter(pl.col("index") == 2).select("low").item(), 1305.75)
-        self.assertEqual(db1.filter(pl.col("index") == 2).select("close").item(), 1307.75)
+        self.assertEqual(db1["open"][2], 1306.0)
+        self.assertEqual(db1["high"][2], 1307.75)
+        self.assertEqual(db1["low"][2], 1305.75)
+        self.assertEqual(db1["close"][2], 1307.75)
 
         # Assert conditions across all rows
-        self.assertTrue((db1.select("high") >= db1.select("low")).all())
-        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
+        self.assertTrue((db1["high"] >= db1["low"]).all())
+        self.assertTrue((db1["volume"] >= db1["cum_buy_volume"]).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
@@ -414,20 +415,20 @@ class TestDataStructures(unittest.TestCase):
         self.assertTrue(np.all(thresh_1.cum_theta_sell == thresh_2.cum_theta_sell))
 
         # Assert OHLC is correct (the first value)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("high").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("low").item(), 1303.00)
-        self.assertEqual(db1.filter(pl.col("index") == 0).select("close").item(), 1305.75)
+        self.assertEqual(db1["open"][0], 1306.0)
+        self.assertEqual(db1["high"][0], 1306.0)
+        self.assertEqual(db1["low"][0], 1303.00)
+        self.assertEqual(db1["close"][0], 1305.75)
 
         # Assert OHLC is correct (third value)
-        self.assertEqual(db1.filter(pl.col("index") == 2).select("open").item(), 1306.0)
-        self.assertEqual(db1.filter(pl.col("index") == 2).select("high").item(), 1307.5)
-        self.assertEqual(db1.filter(pl.col("index") == 2).select("low").item(), 1305.75)
-        self.assertEqual(db1.filter(pl.col("index") == 2).select("close").item(), 1307.5)
+        self.assertEqual(db1["open"][2], 1306.0)
+        self.assertEqual(db1["high"][2], 1307.5)
+        self.assertEqual(db1["low"][2], 1305.75)
+        self.assertEqual(db1["close"][2], 1307.5)
 
         # Assert conditions across all rows
-        self.assertTrue((db1.select("high") >= db1.select("low")).all())
-        self.assertTrue((db1.select("volume") >= db1.select("cum_buy_volume")).all())
+        self.assertTrue((db1["high"] >= db1["low"]).all())
+        self.assertTrue((db1["volume"] >= db1["cum_buy_volume"]).all())
 
         # Delete generated csv file (if it wasn't generated test would fail)
         os.remove('test.csv')
