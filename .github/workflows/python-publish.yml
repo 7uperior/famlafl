@@ -1,0 +1,64 @@
+# This workflow will upload a Python Package to PyPI when a release is created
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+name: Upload Python Package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write 
+
+jobs:
+  pypi-publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/famlafl
+    
+    strategy:
+      matrix:
+        python-version: ["3.11","3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+
+      - name: Generate lock file
+        run: |
+          poetry lock
+
+      - name: Install dependencies
+        run: |
+          poetry install --no-root
+
+      # - name: Run tests
+      #   run: |
+      #     poetry run pytest
+
+      - name: Build release distributions
+        run: |
+          poetry build
+
+      - name: Publish to PyPI
+        env:
+          POETRY_USERNAME: __token__  # Use PyPI token authentication
+          POETRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          poetry publish --no-interaction --username "$POETRY_USERNAME" --password "$POETRY_PASSWORD"
+
+
